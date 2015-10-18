@@ -93,6 +93,7 @@ namespace Comp3931_Project_JoePelz {
                 for (int i = 0; i < numSamples; i++) {
                     for (int c = 0; c < channels; c++) {
                         //assuming signed
+                        //normalized to -1.0..+1.0
                         samples[c][i] = (double)sr.ReadInt16() / 32768.0;
                     }
                 }
@@ -100,6 +101,7 @@ namespace Comp3931_Project_JoePelz {
                 for (int i = 0; i < numSamples; i++) {
                     for (int c = 0; c < channels; c++) {
                         //assuming unsigned
+                        //normalized to -1.0..+1.0
                         samples[c][i] = (double)sr.ReadByte() / 128.0 - 1.0;
                     }
                 }
@@ -147,14 +149,14 @@ namespace Comp3931_Project_JoePelz {
                 for (int i = 0; i < getNumSamples(); i++) {
                     for (int c = 0; c < channels; c++) {
                         //assuming signed
-                        wr.Write((short)(samples[c][i] * 65536 - 32768));
+                        wr.Write((short)(samples[c][i] * 32768));
                     }
                 }
             } else if (bitDepth == 8) {
                 for (int i = 0; i < getNumSamples(); i++) {
                     for (int c = 0; c < channels; c++) {
                         //assuming unsigned
-                        wr.Write((byte)(samples[c][i] * 256));
+                        wr.Write((byte)(samples[c][i] * 128 + 128));
                     }
                 }
             }
@@ -174,17 +176,19 @@ namespace Comp3931_Project_JoePelz {
                 for (int i = 0; i < getNumSamples(); i++) {
                     for (int c = 0; c < channels; c++) {
                         //assuming signed
-                        wr.Write((short)(samples[c][i] * 65536 - 32768));
+                        wr.Write((short)(samples[c][i] * 32768));
                     }
                 }
             } else if (bitDepth == 8) {
                 for (int i = 0; i < getNumSamples(); i++) {
                     for (int c = 0; c < channels; c++) {
                         //assuming unsigned
-                        wr.Write((byte)(samples[c][i] * 256));
+                        wr.Write((byte)(samples[c][i] * 128 + 128));
                     }
                 }
             }
+            wr.Dispose();
+            ms.Dispose();
             return result;
         }
 

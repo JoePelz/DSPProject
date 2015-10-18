@@ -11,7 +11,7 @@ using System.Windows.Forms;
 namespace Comp3931_Project_JoePelz {
     public partial class WaveForm : Form {
         private WaveFile wave;
-        private WavePlayer player;
+        private WavePlayer2 player;
         private Complex[][] DFT;
         private DSP_Window sampleWindowing = DSP_Window.pass;
         private int fourierN = 882;
@@ -76,30 +76,30 @@ namespace Comp3931_Project_JoePelz {
         }
 
         public void wavePlayPause() {
-            if (player != null && (player.isInRange() && player.playing)) {
-                waveStop();
-                return;
+            if (player == null) {
+                player = new WavePlayer2();
             }
 
-            if (player == null || invalidPlayer) {
+            if (invalidPlayer) {
                 if (player != null) {
-                    player.Stop();
-                    player.Dispose();
+                    player.stop();
                 }
                 if (tSelEnd == tSelStart)
-                    player = new WavePlayer(wave.copySelection(tSelStart, wave.getNumSamples()));
+                    player.setWave(wave.copySelection(tSelStart, wave.getNumSamples()));
                 else
-                    player = new WavePlayer(wave.copySelection(tSelStart, tSelEnd));
+                    player.setWave(wave.copySelection(tSelStart, tSelEnd));
                 invalidPlayer = false;
             }
 
-            player.Play();
-            report("Playing back sample.");
+            if (player.isPlaying()) {
+                player.pause(); //toggles paused/unpaused
+            } else {
+                player.play();
+            }
         }
 
         public void waveStop() {
-            player.Stop();
-            report("Playback stopped.");
+            player.stop();
         }
 
         private void panelFourier_Paint(object sender, PaintEventArgs e) {

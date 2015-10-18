@@ -31,7 +31,7 @@ namespace Comp3931_Project_JoePelz {
         public short cbSize;            //chunk size (how many bytes of data)
 
         public WaveFormat(int rate, int bits, int channels) {
-            wFormatTag = (short)0x01;
+            wFormatTag = (short)1;
             nChannels = (short)channels;
             nSamplesPerSec = rate;
             wBitsPerSample = (short)bits;
