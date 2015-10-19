@@ -155,10 +155,11 @@ namespace Comp3931_Project_JoePelz {
         private void btnRecord_Click(object sender, EventArgs e) {
             if (rec == null) {
                 rec = new WaveRecorder();
+                System.Threading.Thread.Sleep(200);
                 rec.beginRecording();
             } else {
                 rec.stopRecording();
-                System.Threading.Thread.Sleep(5);
+                System.Threading.Thread.Sleep(500);
                 WaveFile result = rec.getResult();
                 if (result != null)
                     createChildWindow(result);

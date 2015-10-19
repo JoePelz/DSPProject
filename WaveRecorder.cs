@@ -41,6 +41,9 @@ namespace Comp3931_Project_JoePelz {
             h_buffer1 = new GCHandle();
             h_buffer2 = new GCHandle();
             wimproc = new WinmmHook.WaveDelegate(WIM_proc);
+
+            waveFormat = new WaveFormat(11025, 8, 1);
+            WaveInHelper.Try(WinmmHook.waveInOpen(out hWaveIn, WinmmHook.WAVE_MAPPER, waveFormat, wimproc, 0, WinmmHook.CALLBACK_FUNCTION));
         }
 
         private void WIM_proc(IntPtr hdrvr, int uMsg, int dwUser, ref WaveHdr wavhdr, int dwParam2) {
@@ -59,12 +62,6 @@ namespace Comp3931_Project_JoePelz {
 
         public void handle_WIM_OPEN() {
             data = null;
-            WaveInHelper.Try(WinmmHook.waveInAddBuffer(hWaveIn, ref waveHdr1, Marshal.SizeOf(waveHdr1)));
-            WaveInHelper.Try(WinmmHook.waveInAddBuffer(hWaveIn, ref waveHdr2, Marshal.SizeOf(waveHdr2)));
-
-            bEnding = false;
-            bRecording = true;
-            WinmmHook.waveInStart(hWaveIn);
         }
 
         public void handle_WIM_DATA(ref WaveHdr waveHeader) {
@@ -79,9 +76,14 @@ namespace Comp3931_Project_JoePelz {
                 copyPos = data.Length;
             }
 
-            GCHandle h_samples = (GCHandle)waveHeader.lpData;
-            byte[] samples = (h_samples.Target as byte[]);
-            samples.CopyTo(result, copyPos);
+            byte[] samples;
+            if (waveHeader.Equals(waveHdr1))
+                samples = buffer1;
+            else if (waveHeader.Equals(waveHdr2))
+                samples = buffer2;
+            else
+                throw new Exception("Wave header doesn't exist??");
+            Array.Copy(samples, 0, result, copyPos, waveHeader.dwBytesRecorded);
             data = result;
 
             if (bEnding) {
@@ -104,9 +106,6 @@ namespace Comp3931_Project_JoePelz {
         }
 
         public void beginRecording() {
-            waveFormat = new WaveFormat(11025, 8, 1);
-            WaveInHelper.Try(WinmmHook.waveInOpen(out hWaveIn, WinmmHook.WAVE_MAPPER, waveFormat, wimproc, 0, WinmmHook.CALLBACK_FUNCTION));
-
             //Setup buffers and bufferHeaders
             buffer1 = new byte[BuffSize];
             h_buffer1 = GCHandle.Alloc(buffer1, GCHandleType.Pinned);
@@ -133,19 +132,25 @@ namespace Comp3931_Project_JoePelz {
             waveHdr2.reserved = 0;
 
             WaveInHelper.Try(WinmmHook.waveInPrepareHeader(hWaveIn, ref waveHdr2, Marshal.SizeOf(waveHdr2)));
+            
+            WaveInHelper.Try(WinmmHook.waveInAddBuffer(hWaveIn, ref waveHdr1, Marshal.SizeOf(waveHdr1)));
+            WaveInHelper.Try(WinmmHook.waveInAddBuffer(hWaveIn, ref waveHdr2, Marshal.SizeOf(waveHdr2)));
 
+            bEnding = false;
+            bRecording = true;
+            WinmmHook.waveInStart(hWaveIn);
         }
 
         public void stopRecording() {
             //sem_doneRecording.Reset();
             bEnding = true;
-            WinmmHook.waveInReset(hWaveIn);
+            //WinmmHook.waveInReset(hWaveIn);
             //sem_doneRecording.WaitOne();
         }
 
         public WaveFile getResult() {
             WaveFile result = null;
-            if (data == null) {
+            if (data != null) {
                 result = new WaveFile(8, 1, 11025, data);
             }
             return result;
