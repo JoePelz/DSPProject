@@ -71,6 +71,9 @@ namespace Comp3931_Project_JoePelz {
         public const int MM_WOM_OPEN = 0x3BB;
         public const int MM_WOM_CLOSE = 0x3BC;
         public const int MM_WOM_DONE = 0x3BD;
+        public const int MM_WIM_OPEN = 0x3BE;
+        public const int MM_WIM_CLOSE = 0x3BF;
+        public const int MM_WIM_DATA = 0x3C0;
 
         public const int CALLBACK_FUNCTION = 0x00030000;    // dwCallback is a FARPROC 
 
@@ -122,10 +125,10 @@ namespace Comp3931_Project_JoePelz {
         [DllImport(mmdll)]
         public static extern int waveInPrepareHeader(IntPtr hWaveIn, ref WaveHdr lpWaveInHdr, int uSize);
         [DllImport(mmdll)]
-        public static extern int waveInUnprepareHeader(IntPtr hWaveOut, ref WaveHdr lpWaveOutHdr, int uSize);
+        public static extern int waveInUnprepareHeader(IntPtr hWaveIn, ref WaveHdr lpWaveInHdr, int uSize);
         [DllImport(mmdll)]
         public static extern int waveInAddBuffer(IntPtr hWaveIn, ref WaveHdr lpWaveInHdr, int uSize);
         [DllImport(mmdll)]
-        public static extern int waveInStart(IntPtr hWaveOut);
+        public static extern int waveInStart(IntPtr hWaveIn);
     }
 }

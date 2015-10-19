@@ -3,83 +3,190 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.IO;
-using System.Media;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace Comp3931_Project_JoePelz {
-    class WavePlayer {
+
+    public enum PlaybackStatus {
+        Playing,
+        Stopped,
+        Paused,
+        Disabled
+    }
+
+    internal class WaveOutHelper {
+        public static void Try(int err) {
+            if (err != WinmmHook.MMSYSERR_NOERROR)
+                throw new Exception(err.ToString());
+        }
+    }
+
+    class WavePlayer : IDisposable {
         private WaveFile wave;
-        private MemoryStream audioStream = null;
-        private SoundPlayer player;
-        private long startTime, timeElapsed, duration;
-        public bool playing = false;
+        private WaveFormat waveform;
+        private WaveHdr pWaveHdr1;
+        private byte[] pbuffer;
+        private GCHandle h_pbuffer;
+        private IntPtr hWaveOut;
+        private AutoResetEvent sem_donePlaying = new AutoResetEvent(false);
+        private AutoResetEvent sem_closing = new AutoResetEvent(false);
 
-        public WavePlayer(WaveFile src) {
-            
-            setWave(src);
-        }
+        private WaveForm parentWindow;
 
-        public void setWave(WaveFile src) {
-            if (audioStream != null) {
-                audioStream.Dispose();
-                audioStream = null;
-            }
-            if (player != null) {
-                player.Dispose();
-                player = null;
-            }
+        private bool bPlaying;
+        private bool bPaused;
 
-            wave = src;
-            audioStream = new MemoryStream();
-            wave.writeStream(audioStream);
-            player = new SoundPlayer(audioStream);
-            player.Stream.Seek(0, SeekOrigin.Begin);
-            startTime = -1;
-            timeElapsed = -1;
-            duration = (long)(wave.getDuration() * 10000000);
-        }
+        private WinmmHook.WaveDelegate m_BufferProc;
+        delegate void SetStatusCallback(PlaybackStatus update);
 
-        public void Dispose() {
-            if (audioStream != null) {
-                audioStream.Dispose();
-            }
-            if (player != null) {
-                player.Dispose();
+        private void WOM_proc(IntPtr hdrvr, int uMsg, int dwUser, ref WaveHdr wavhdr, int dwParam2) {
+            GCHandle h;
+            WavePlayer player;
+
+            switch (uMsg) {
+                case WinmmHook.MM_WOM_OPEN:
+                    break;
+                case WinmmHook.MM_WOM_DONE:
+                    h = (GCHandle)wavhdr.dwUser;
+                    player = (WavePlayer)h.Target;
+                    player.handle_WOM_DONE();
+                    break;
+                case WinmmHook.MM_WOM_CLOSE:
+                    handle_WOM_CLOSE();
+                    break;
             }
         }
 
-        public void Stop() {
-            if (player != null) {
-                player.Stop();
-                player.Stream.Seek(0, SeekOrigin.Begin); // rewind stream
-            }
-            timeElapsed = -1;
-            startTime = -1;
-            playing = false;
+        public WavePlayer(WaveForm parent) {
+            parentWindow = parent;
+            updateStatus(PlaybackStatus.Disabled);
+            hWaveOut = new IntPtr();
+            h_pbuffer = new GCHandle();
+            m_BufferProc = new WinmmHook.WaveDelegate(WOM_proc);
         }
 
-        public bool isInRange() {
-            if (timeElapsed == -1)
-                return (DateTime.UtcNow.Ticks - startTime) < duration;
-            if (playing) {
-                return timeElapsed + (DateTime.UtcNow.Ticks - startTime) < duration;
-            } else {
-                return timeElapsed < duration;
+        private void updateStatus(PlaybackStatus update) {
+            lock(this) {
+                switch(update) {
+                    case PlaybackStatus.Playing:
+                        bPlaying = true;
+                        bPaused = false;
+                        break;
+                    case PlaybackStatus.Paused:
+                        bPlaying = true;
+                        bPaused = true;
+                        break;
+                    case PlaybackStatus.Stopped:
+                    case PlaybackStatus.Disabled:
+                        bPlaying = false;
+                        bPaused = false;
+                        break;
+                }
+
+                //Causes crash when stop is pressed during playback.
+                //  May have to do with cross-thread calls.
+                //SetStatusCallback d = new SetStatusCallback(parentWindow.updatePlaybackStatus);
+                //parentWindow.Invoke(d, update);
+                //parentWindow.updatePlaybackStatus(update);
             }
         }
 
-        public void Play() {
-            if (player == null) {
+        public void handle_WOM_DONE() {
+            sem_donePlaying.Set();
+            updateStatus(PlaybackStatus.Stopped);
+        }
+
+        public void handle_WOM_CLOSE() {
+            updateStatus(PlaybackStatus.Disabled);
+            sem_closing.Set();
+        }
+
+        public void setWave(WaveFile source) {
+            if (hWaveOut != IntPtr.Zero) {
+                sem_closing.Reset();
+                cleanup();
+                sem_closing.WaitOne();
+            }
+
+            wave = source;
+            waveform = new WaveFormat(wave.sampleRate, wave.bitDepth, wave.channels);
+            WaveOutHelper.Try(WinmmHook.waveOutOpen(out hWaveOut, WinmmHook.WAVE_MAPPER, waveform, m_BufferProc, 0, WinmmHook.CALLBACK_FUNCTION));
+
+            pbuffer = wave.getData();
+            if (h_pbuffer.IsAllocated)
+                h_pbuffer.Free();
+            h_pbuffer = GCHandle.Alloc(pbuffer, GCHandleType.Pinned);  //handle (pointer) to the buffer
+
+            pWaveHdr1.dwUser = (IntPtr)GCHandle.Alloc(this);    //pointer to this
+            pWaveHdr1.dwBufferLength = pbuffer.Length;          //size of the buffer in bytes
+            pWaveHdr1.lpData = h_pbuffer.AddrOfPinnedObject();  //IntPtr to buffer
+            updateStatus(PlaybackStatus.Stopped);
+        }
+
+        public void play() {
+            if (hWaveOut == IntPtr.Zero)
                 return;
+            sem_donePlaying.Reset();
+            if (pWaveHdr1.dwFlags != 0) {
+                WaveOutHelper.Try(WinmmHook.waveOutUnprepareHeader(hWaveOut, ref pWaveHdr1, Marshal.SizeOf(pWaveHdr1)));
             }
+            pWaveHdr1.dwFlags = 0;
+            WaveOutHelper.Try(WinmmHook.waveOutPrepareHeader(hWaveOut, ref pWaveHdr1, Marshal.SizeOf(pWaveHdr1)));
+            WinmmHook.waveOutWrite(hWaveOut, ref pWaveHdr1, Marshal.SizeOf(pWaveHdr1));
+            updateStatus(PlaybackStatus.Playing);
+            //sem_playing.WaitOne(); //block while playing.
+        }
 
-            if (playing && !isInRange()) {
-                Stop(); //rewind the wave file
+        public void pause() {
+            if (hWaveOut == IntPtr.Zero)
+                return;
+            if (!bPlaying)
+                return;
+
+            if (!bPaused) {
+                WinmmHook.waveOutPause(hWaveOut);
+                updateStatus(PlaybackStatus.Paused);
+            } else {
+                WinmmHook.waveOutRestart(hWaveOut);
+                updateStatus(PlaybackStatus.Playing);
             }
+        }
 
-            startTime = DateTime.UtcNow.Ticks;
-            player.Play();
-            playing = true;
+        public void stop() {
+            if (hWaveOut == IntPtr.Zero)
+                return;
+            WinmmHook.waveOutReset(hWaveOut);
+            updateStatus(PlaybackStatus.Stopped);
+        }
+
+        public bool isPlaying() {
+            return bPlaying;
+        }
+
+        public bool isPaused() {
+            return bPaused;
+        }
+
+        ~WavePlayer() {
+            Dispose();
+        }
+        public void Dispose() {
+            if (hWaveOut != IntPtr.Zero) {
+                sem_closing.Reset();
+                cleanup();
+                sem_closing.WaitOne();
+            }
+        }
+
+        private void cleanup() {
+            if (hWaveOut == IntPtr.Zero)
+                return;
+            WinmmHook.waveOutReset(hWaveOut);
+            WinmmHook.waveOutClose(hWaveOut);
+            if (h_pbuffer.IsAllocated)
+                h_pbuffer.Free();
+            hWaveOut = IntPtr.Zero;
         }
     }
 }

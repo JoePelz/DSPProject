@@ -14,6 +14,7 @@ namespace Comp3931_Project_JoePelz {
     public partial class Mixer : Form {
         Image play;
         Image pause;
+        WaveRecorder rec;
         List<WaveForm> children = new List<WaveForm>();
         WaveForm activeChild = null;
         ToolStripMenuItem[] childWindowMenuItems;
@@ -89,6 +90,17 @@ namespace Comp3931_Project_JoePelz {
             updateWindowMenu();
         }
 
+        private void createChildWindow(WaveFile wave) {
+            WaveForm baby;
+            baby = new WaveForm(this, wave);
+            
+            //TODO: call parent.registerChild(this) from WaveForm, instead of having this code here
+            children.Add(baby);
+            activeChild = baby;
+            baby.Show();
+            updateWindowMenu();
+        }
+
         private void btnSave_Click(object sender, EventArgs e) {
             if (saveFileDialog1.ShowDialog() == DialogResult.OK) {
                 MessageBox.Show("File to save: " + saveFileDialog1.FileName);
@@ -140,16 +152,24 @@ namespace Comp3931_Project_JoePelz {
             }
         }
 
+        private void btnRecord_Click(object sender, EventArgs e) {
+            if (rec == null) {
+                rec = new WaveRecorder();
+                rec.beginRecording();
+            } else {
+                rec.stopRecording();
+                System.Threading.Thread.Sleep(5);
+                WaveFile result = rec.getResult();
+                if (result != null)
+                    createChildWindow(result);
+                rec = null;
+            }
+        }
+
         private void btnPlay_Click(object sender, EventArgs e) {
             if (activeChild == null) {
                 return;
             }
-            //pause doesn't work. but when it does, this can change the image.
-            //if (btnPlay.Image == play) {
-            //    btnPlay.Image = pause;
-            //} else {
-            //    btnPlay.Image = play;
-            //}
 
             activeChild.wavePlayPause();
             btnPlay.Invalidate();

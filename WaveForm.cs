@@ -11,7 +11,7 @@ using System.Windows.Forms;
 namespace Comp3931_Project_JoePelz {
     public partial class WaveForm : Form {
         private WaveFile wave;
-        private WavePlayer2 player;
+        private WavePlayer player;
         private Complex[][] DFT;
         private DSP_Window sampleWindowing = DSP_Window.pass;
         private int fourierN = 882;
@@ -77,7 +77,7 @@ namespace Comp3931_Project_JoePelz {
 
         public void wavePlayPause() {
             if (player == null) {
-                player = new WavePlayer2(this);
+                player = new WavePlayer(this);
             }
 
             if (invalidPlayer) {

@@ -146,7 +146,7 @@
             this.toolStripMenuItem8,
             this.toolStripMenuItem9});
             this.changeSampleRateToolStripMenuItem.Name = "changeSampleRateToolStripMenuItem";
-            this.changeSampleRateToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.changeSampleRateToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.changeSampleRateToolStripMenuItem.Text = "Sample Rate";
             // 
             // toolStripMenuItem6
@@ -181,7 +181,7 @@
             this.toolStripMenuItem4,
             this.toolStripMenuItem5});
             this.changeBitRateToolStripMenuItem.Name = "changeBitRateToolStripMenuItem";
-            this.changeBitRateToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.changeBitRateToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.changeBitRateToolStripMenuItem.Text = "Bit Rate";
             // 
             // toolStripMenuItem2
@@ -221,7 +221,7 @@
             // reverseToolStripMenuItem
             // 
             this.reverseToolStripMenuItem.Name = "reverseToolStripMenuItem";
-            this.reverseToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.reverseToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
             this.reverseToolStripMenuItem.Text = "&Reverse";
             this.reverseToolStripMenuItem.Click += new System.EventHandler(this.reverseToolStripMenuItem_Click);
             // 
@@ -294,6 +294,7 @@
             this.btnRecord.Name = "btnRecord";
             this.btnRecord.Size = new System.Drawing.Size(52, 52);
             this.btnRecord.Text = "Record a sample";
+            this.btnRecord.Click += new System.EventHandler(this.btnRecord_Click);
             // 
             // btnStop
             // 

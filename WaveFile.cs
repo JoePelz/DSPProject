@@ -252,6 +252,43 @@ namespace Comp3931_Project_JoePelz {
             name = "[Untitled File]";
         }
 
+        public WaveFile(short bitDepth, short channels, int sampleRate, byte[] data) {
+            this.bitDepth = bitDepth;
+            this.channels = channels;
+            this.sampleRate = sampleRate;
+            path = null;
+            name = "[Untitled Recording]";
+
+            System.IO.MemoryStream ms = new System.IO.MemoryStream(data);
+            System.IO.BinaryReader br = new System.IO.BinaryReader(ms);
+            int numSamples = data.Length / (channels * (bitDepth / 8));
+            samples = new double[channels][];
+            for (int c = 0; c < channels; c++) {
+                samples[c] = new double[numSamples];
+            }
+
+            if (bitDepth == 16) {
+                for (int i = 0; i < numSamples; i++) {
+                    for (int c = 0; c < channels; c++) {
+                        //assuming signed
+                        //normalized to -1.0..+1.0
+                        samples[c][i] = (double)br.ReadInt16() / 32768.0;
+                    }
+                }
+            } else if (bitDepth == 8) {
+                for (int i = 0; i < numSamples; i++) {
+                    for (int c = 0; c < channels; c++) {
+                        //assuming unsigned
+                        //normalized to -1.0..+1.0
+                        samples[c][i] = (double)br.ReadByte() / 128.0 - 1.0;
+                    }
+                }
+            } else {
+                throw new FormatException("Bit depth must be one of 8 or 16 bits.");
+            }
+
+        }
+
         private WaveFile(short bitDepth, short channels, int sampleRate) {
             path = null;
             name = "[Untitled File]";
