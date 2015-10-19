@@ -123,6 +123,8 @@ namespace Comp3931_Project_JoePelz {
         [DllImport(mmdll)]
         public static extern int waveInClose(IntPtr hWaveIn);
         [DllImport(mmdll)]
+        public static extern int waveInStop(IntPtr hWaveIn);
+        [DllImport(mmdll)]
         public static extern int waveInPrepareHeader(IntPtr hWaveIn, ref WaveHdr lpWaveInHdr, int uSize);
         [DllImport(mmdll)]
         public static extern int waveInUnprepareHeader(IntPtr hWaveIn, ref WaveHdr lpWaveInHdr, int uSize);
