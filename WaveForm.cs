@@ -77,12 +77,13 @@ namespace Comp3931_Project_JoePelz {
 
         public void wavePlayPause() {
             if (player == null) {
-                player = new WavePlayer2();
+                player = new WavePlayer2(this);
             }
 
             if (invalidPlayer) {
                 if (player != null) {
                     player.stop();
+                    player.Dispose();
                 }
                 if (tSelEnd == tSelStart)
                     player.setWave(wave.copySelection(tSelStart, wave.getNumSamples()));
@@ -90,7 +91,7 @@ namespace Comp3931_Project_JoePelz {
                     player.setWave(wave.copySelection(tSelStart, tSelEnd));
                 invalidPlayer = false;
             }
-
+            
             if (player.isPlaying()) {
                 player.pause(); //toggles paused/unpaused
             } else {
@@ -99,7 +100,13 @@ namespace Comp3931_Project_JoePelz {
         }
 
         public void waveStop() {
-            player.stop();
+            if (player != null) {
+                player.stop();
+            }
+        }
+
+        public void updatePlaybackStatus(PlaybackStatus update) {
+            //parent.playbackUpdate(update);
         }
 
         private void panelFourier_Paint(object sender, PaintEventArgs e) {

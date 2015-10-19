@@ -115,7 +115,35 @@ namespace Comp3931_Project_JoePelz {
             btnPlay.Image = play;
         }
 
+        public void playbackUpdate(PlaybackStatus update) {
+            switch (update) {
+                case PlaybackStatus.Playing:
+                    btnPlay.Image = pause;
+                    btnPlay.Enabled = true;
+                    btnStop.Enabled = true;
+                    break;
+                case PlaybackStatus.Paused:
+                    btnPlay.Image = play;
+                    btnPlay.Enabled = true;
+                    btnStop.Enabled = true;
+                    break;
+                case PlaybackStatus.Stopped:
+                    btnPlay.Image = play;
+                    btnPlay.Enabled = true;
+                    btnStop.Enabled = true;
+                    break;
+                case PlaybackStatus.Disabled:
+                    btnPlay.Image = play;
+                    btnPlay.Enabled = false;
+                    btnStop.Enabled = false;
+                    break;
+            }
+        }
+
         private void btnPlay_Click(object sender, EventArgs e) {
+            if (activeChild == null) {
+                return;
+            }
             //pause doesn't work. but when it does, this can change the image.
             //if (btnPlay.Image == play) {
             //    btnPlay.Image = pause;

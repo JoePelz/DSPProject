@@ -44,7 +44,29 @@ namespace Comp3931_Project_JoePelz {
 
     class WinmmHook {
         // consts
+        public const int MMSYSERR_BASE = 0;
         public const int MMSYSERR_NOERROR = 0; // no error
+        public const int MMSYSERR_ERROR       = (MMSYSERR_BASE + 1);  /* unspecified error */
+        public const int MMSYSERR_BADDEVICEID = (MMSYSERR_BASE + 2);  /* device ID out of range */
+        public const int MMSYSERR_NOTENABLED  = (MMSYSERR_BASE + 3);  /* driver failed enable */
+        public const int MMSYSERR_ALLOCATED   = (MMSYSERR_BASE + 4);  /* device already allocated */
+        public const int MMSYSERR_INVALHANDLE = (MMSYSERR_BASE + 5);  /* device handle is invalid */
+        public const int MMSYSERR_NODRIVER    = (MMSYSERR_BASE + 6);  /* no device driver present */
+        public const int MMSYSERR_NOMEM       = (MMSYSERR_BASE + 7);  /* memory allocation error */
+        public const int MMSYSERR_NOTSUPPORTED= (MMSYSERR_BASE + 8);  /* function isn't supported */
+        public const int MMSYSERR_BADERRNUM   = (MMSYSERR_BASE + 9);  /* error value out of range */
+        public const int MMSYSERR_INVALFLAG   = (MMSYSERR_BASE + 10); /* invalid flag passed */
+        public const int MMSYSERR_INVALPARAM  = (MMSYSERR_BASE + 11); /* invalid parameter passed */
+        public const int MMSYSERR_HANDLEBUSY  = (MMSYSERR_BASE + 12); /* handle being used */
+                                                                      /* simultaneously on another */
+                                                                      /* thread (eg callback) */
+        
+        public const int WAVERR_BASE          =  32;
+        public const int WAVERR_BADFORMAT     = (WAVERR_BASE + 0);   /* unsupported wave format */
+        public const int WAVERR_STILLPLAYING  = (WAVERR_BASE + 1);   /* still something playing */
+        public const int WAVERR_UNPREPARED    = (WAVERR_BASE + 2);   /* header not prepared */
+        public const int WAVERR_SYNC          = (WAVERR_BASE + 3);   /* device is synchronous */
+        public const int WAVERR_LASTERROR     = (WAVERR_BASE + 3);   /* last error in range */
 
         public const int MM_WOM_OPEN = 0x3BB;
         public const int MM_WOM_CLOSE = 0x3BC;
@@ -57,6 +79,9 @@ namespace Comp3931_Project_JoePelz {
         public const int TIME_MS = 0x0001;  // time in milliseconds 
         public const int TIME_SAMPLES = 0x0002;  // number of wave samples 
         public const int TIME_BYTES = 0x0004;  // current byte offset 
+
+
+
 
         // callbacks
         public delegate void WaveDelegate(IntPtr hdrvr, int uMsg, int dwUser, ref WaveHdr wavhdr, int dwParam2);
@@ -87,5 +112,20 @@ namespace Comp3931_Project_JoePelz {
         public static extern int waveOutSetVolume(IntPtr hWaveOut, int dwVolume);
         [DllImport(mmdll)]
         public static extern int waveOutGetVolume(IntPtr hWaveOut, out int dwVolume);
+
+        [DllImport(mmdll)]
+        public static extern int waveInOpen(out IntPtr hWaveIn, int uDeviceID, WaveFormat lpFormat, WaveDelegate dwCallback, int dwInstance, int dwFlags);
+        [DllImport(mmdll)]
+        public static extern int waveInReset(IntPtr hWaveIn);
+        [DllImport(mmdll)]
+        public static extern int waveInClose(IntPtr hWaveIn);
+        [DllImport(mmdll)]
+        public static extern int waveInPrepareHeader(IntPtr hWaveIn, ref WaveHdr lpWaveInHdr, int uSize);
+        [DllImport(mmdll)]
+        public static extern int waveInUnprepareHeader(IntPtr hWaveOut, ref WaveHdr lpWaveOutHdr, int uSize);
+        [DllImport(mmdll)]
+        public static extern int waveInAddBuffer(IntPtr hWaveIn, ref WaveHdr lpWaveInHdr, int uSize);
+        [DllImport(mmdll)]
+        public static extern int waveInStart(IntPtr hWaveOut);
     }
 }
