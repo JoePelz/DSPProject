@@ -159,7 +159,7 @@ namespace Comp3931_Project_JoePelz {
                 rec.beginRecording();
             } else {
                 rec.stopRecording();
-                System.Threading.Thread.Sleep(500);
+                System.Threading.Thread.Sleep(500); //ensure close is finished. This is terrible but I can't fix it.
                 WaveFile result = rec.getResult();
                 if (result != null)
                     createChildWindow(result);
