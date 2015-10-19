@@ -121,6 +121,7 @@ namespace Comp3931_Project_JoePelz {
             pWaveHdr1.dwUser = (IntPtr)GCHandle.Alloc(this);    //pointer to this
             pWaveHdr1.dwBufferLength = pbuffer.Length;          //size of the buffer in bytes
             pWaveHdr1.lpData = h_pbuffer.AddrOfPinnedObject();  //IntPtr to buffer
+            pWaveHdr1.dwFlags = 0;
             updateStatus(PlaybackStatus.Stopped);
         }
 
@@ -184,6 +185,7 @@ namespace Comp3931_Project_JoePelz {
                 return;
             WinmmHook.waveOutReset(hWaveOut);
             WinmmHook.waveOutClose(hWaveOut);
+            System.Threading.Thread.Sleep(100);
             if (h_pbuffer.IsAllocated)
                 h_pbuffer.Free();
             hWaveOut = IntPtr.Zero;

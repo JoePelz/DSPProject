@@ -348,6 +348,8 @@ namespace Comp3931_Project_JoePelz {
         }
 
         private void WaveForm_FormClosed(object sender, FormClosedEventArgs e) {
+            waveStop();
+            player.Dispose();
             parent.childDied(this);
         }
         

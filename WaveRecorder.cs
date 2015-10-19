@@ -43,7 +43,6 @@ namespace Comp3931_Project_JoePelz {
 
             waveFormat = new WaveFormat(11025, 8, 1);
             WaveInHelper.Try(WinmmHook.waveInOpen(out hWaveIn, WinmmHook.WAVE_MAPPER, waveFormat, wimproc, 0, WinmmHook.CALLBACK_FUNCTION));
-
         }
 
         private void WIM_proc(IntPtr hdrvr, int uMsg, int dwUser, ref WaveHdr wavhdr, int dwParam2) {
@@ -65,7 +64,7 @@ namespace Comp3931_Project_JoePelz {
         }
 
         public void handle_WIM_OPEN() {
-            data = null;
+            //do nothing
         }
 
         public void handle_WIM_DATA(ref WaveHdr waveHeader) {
@@ -91,13 +90,6 @@ namespace Comp3931_Project_JoePelz {
             data = result;
 
             if (bEnding) {
-                WaveInHelper.Try(WinmmHook.waveInUnprepareHeader(hWaveIn, ref waveHeader, Marshal.SizeOf(waveHeader)));
-                WinmmHook.waveInClose(hWaveIn);
-                
-                if (waveHeader.Equals(waveHdr1))
-                    buffer1 = null;
-                else if (waveHeader.Equals(waveHdr2))
-                    buffer2 = null;
                 return;
             }
 
@@ -106,13 +98,11 @@ namespace Comp3931_Project_JoePelz {
         }
 
         public void handle_WIM_CLOSE() {
-            //this never gets called. WHY?
             bRecording = false;
-            //WaveInHelper.Try(WinmmHook.waveInUnprepareHeader(hWaveIn, ref waveHdr1, Marshal.SizeOf(waveHdr1)));
-            //WaveInHelper.Try(WinmmHook.waveInUnprepareHeader(hWaveIn, ref waveHdr2, Marshal.SizeOf(waveHdr2)));
         }
 
         public void beginRecording() {
+
             //Setup buffers and bufferHeaders
             buffer1 = new byte[BuffSize];
             h_buffer1 = GCHandle.Alloc(buffer1, GCHandleType.Pinned);
@@ -139,19 +129,28 @@ namespace Comp3931_Project_JoePelz {
             waveHdr2.reserved = 0;
 
             WaveInHelper.Try(WinmmHook.waveInPrepareHeader(hWaveIn, ref waveHdr2, Marshal.SizeOf(waveHdr2)));
-            
+
+            System.Threading.Thread.Sleep(200); //allow for wave to be opened
+
+            data = null;
             WaveInHelper.Try(WinmmHook.waveInAddBuffer(hWaveIn, ref waveHdr1, Marshal.SizeOf(waveHdr1)));
             WaveInHelper.Try(WinmmHook.waveInAddBuffer(hWaveIn, ref waveHdr2, Marshal.SizeOf(waveHdr2)));
-
             bEnding = false;
             bRecording = true;
             WinmmHook.waveInStart(hWaveIn);
         }
 
         public void stopRecording() {
-            bEnding = true;
             WaveInHelper.Try(WinmmHook.waveInStop(hWaveIn));
+            bEnding = true;
+
+            System.Threading.Thread.Sleep(200); //let it finish.
+
             WaveInHelper.Try(WinmmHook.waveInReset(hWaveIn));
+            WaveInHelper.Try(WinmmHook.waveInUnprepareHeader(hWaveIn, ref waveHdr1, Marshal.SizeOf(waveHdr1)));
+            WaveInHelper.Try(WinmmHook.waveInUnprepareHeader(hWaveIn, ref waveHdr2, Marshal.SizeOf(waveHdr2)));
+            WaveInHelper.Try(WinmmHook.waveInClose(hWaveIn));
+            bEnding = false;
         }
 
         public WaveFile getResult() {
@@ -166,6 +165,12 @@ namespace Comp3931_Project_JoePelz {
             Dispose();
         }
         public void Dispose() {
+            if (h_buffer1.IsAllocated) {
+                h_buffer1.Free();
+            }
+            if (h_buffer2.IsAllocated) {
+                h_buffer2.Free();
+            }
         }
     }
 }
