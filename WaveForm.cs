@@ -22,6 +22,10 @@ namespace Comp3931_Project_JoePelz {
         private bool invalidPlayer = true;
         private int tMouseDown = 0;
         private int tMouseDrag = 0;
+        private int fMouseDown = 0;
+        private int fMouseDrag = 0;
+        private int fSelStart = 0;
+        private int fSelEnd = 0;
         private float waveViewHeight = 0;
         private float waveViewWidth = 0;
         private float fourierViewHeight = 0;
@@ -69,6 +73,9 @@ namespace Comp3931_Project_JoePelz {
                 case Keys.End:
                     updateSelection(wave.getNumSamples() - 1, wave.getNumSamples() - 1);
                     return true;
+                case Keys.Delete:
+                    filterSelectedFrequencies();
+                    return true;
             }
 
             // run base implementation
@@ -111,10 +118,27 @@ namespace Comp3931_Project_JoePelz {
 
         private void panelFourier_Paint(object sender, PaintEventArgs e) {
             Graphics g = e.Graphics;
+            drawFreqSelection(g);
             drawAliasAxis(g);
             drawFourier(g);
             fourierViewHeight = g.VisibleClipBounds.Height;
             fourierViewWidth = g.VisibleClipBounds.Width;
+        }
+
+        private void drawFreqSelection(Graphics g) {
+            if (fSelStart == fSelEnd) {
+                return;
+            }
+            RectangleF client = g.VisibleClipBounds;
+            RectangleF r = new RectangleF();
+            int w = (int)g.VisibleClipBounds.Width;
+            r.Y = 0;
+            r.Height = client.Height;
+            r.X = Math.Max(1.0f / fourierN * client.Width, (float)(fSelStart) / fourierN * client.Width);
+            r.Width = Math.Max(2, (float)(fSelEnd+1) / fourierN * client.Width - r.X);
+            g.FillRectangle(Brushes.PaleGoldenrod, r);
+            r.X = client.Width - (Math.Max(0, (float)(fSelStart-1) / fourierN * client.Width)) - r.Width;
+            g.FillRectangle(Brushes.PaleGoldenrod, r);
         }
 
         private void drawAliasAxis(Graphics g) {
@@ -326,30 +350,73 @@ namespace Comp3931_Project_JoePelz {
             this.parent.setActiveWindow(this);
         }
 
+        private void panelFourier_MouseDown(object sender, MouseEventArgs e) {
+            Graphics g = ((Control)sender).CreateGraphics();
+            float position = e.X / g.VisibleClipBounds.Width;
+            int index = (int)(position * DFT[0].Length);
+            fSelStart = index;
+            fSelEnd = index;
+            fMouseDown = index;
+            fMouseDrag = index;
+        }
+
+        private void panelFourier_MouseUp(object sender, MouseEventArgs e) {
+            Graphics g = ((Control)sender).CreateGraphics();
+            float position = e.X / g.VisibleClipBounds.Width;
+            int index = (int)(position * DFT[0].Length);
+            fMouseDrag = index;
+            if (fMouseDrag == fMouseDown) {
+                updateFreqSelection(-2, -1);
+            } else {
+                updateFreqSelection(Math.Min(fMouseDown, fMouseDrag), Math.Max(fMouseDown, fMouseDrag));
+            }
+        }
+
         private void panelFourier_MouseMove(object sender, MouseEventArgs e) {
             Graphics g = ((Control)sender).CreateGraphics();
             float position = e.X / g.VisibleClipBounds.Width;
             int index = (int)(position * DFT[0].Length);
             int loval = (int)((float)index / DFT[0].Length * wave.sampleRate);
+            String info;
             g.Dispose();
 
-            if (loval >= wave.sampleRate / 2) {
-                lblFourierFreq.Text = String.Format("Frequency: {0}Hz [Aliased]", loval);
-            } else {
-                lblFourierFreq.Text = String.Format("Frequency: {0}Hz", loval);
+            if (index >= 0 && index <= fourierN-1) {
+                if (loval >= wave.sampleRate / 2) {
+                    lblFourierFreq.Text = String.Format("Frequency: {0}Hz [Aliased]", loval);
+                } else {
+                    lblFourierFreq.Text = String.Format("Frequency: {0}Hz", loval);
+                }
+                double amplitude = DFT[0][index].magnitude() / (fourierN / 2);
+                double phase = 0;
+                if (amplitude > 0.00001)
+                    phase = DFT[0][index].angle() / Math.PI;
+                if (e.Button != MouseButtons.Left) {
+                    info = String.Format("Frequency: {0}Hz; Amplitude: {1:0.0}; Phase: {2:0.000}pi*rad", loval, amplitude, phase);
+                    report(info);
+                    return;
+                }
             }
-            double amplitude = DFT[0][index].magnitude() / (fourierN / 2);
-            double phase = 0;
-            if (amplitude > 0.00001)
-                phase = DFT[0][index].angle() / Math.PI;
+            
+            fMouseDrag = index;
+            updateFreqSelection(Math.Min(fMouseDown, fMouseDrag), Math.Max(fMouseDown, fMouseDrag));
 
-            String info = String.Format("Frequency: {0}Hz; Amplitude: {1:0.0}; Phase: {2:0.000}pi*rad", loval, amplitude, phase);
+            loval = (int)((float)fSelStart / DFT[0].Length * wave.sampleRate);
+            int hival = (int)((float)(fSelEnd+1) / DFT[0].Length * wave.sampleRate);
+            info = String.Format("Selected: {0}Hz to {1}Hz", loval, hival);
             report(info);
+        }
+
+        private void updateFreqSelection(int low, int high) {
+            fSelStart = Math.Max(0, low);
+            fSelEnd = Math.Min(fourierN-1, high);
+            panelFourier.Invalidate();
         }
 
         private void WaveForm_FormClosed(object sender, FormClosedEventArgs e) {
             waveStop();
-            player.Dispose();
+            if (player != null) {
+                player.Dispose();
+            }
             parent.childDied(this);
         }
         
@@ -468,6 +535,28 @@ namespace Comp3931_Project_JoePelz {
             wave.pasteSelection(tSelStart, data);
             report(data.getNumSamples() + " samples pasted from the clipboard!");
             updateSelection(tSelStart, tSelStart + data.getNumSamples());
+        }
+
+        public void filterSelectedFrequencies() {
+            if (fSelStart == fSelEnd)
+                return;
+            
+            double[] filter = new double[fourierN];
+            for (int fbin = 0; fbin < filter.Length; fbin++) {
+                //TODO: I don't know if these should be <= or <
+                if ((fbin >= fSelStart && fbin <= fSelEnd) || (fbin >= fourierN - fSelEnd && fbin <= fourierN - fSelStart)) {
+                    filter[fbin] = 0;
+                } else {
+                    filter[fbin] = 1;
+                }
+            }
+            for (int channel = 0; channel < wave.channels; channel++) {
+                wave.samples[channel] = DSP.convolveFilter(wave.samples[channel], filter);
+            }
+            panelWave.Invalidate();
+            calculateDFT();
+            panelFourier.Invalidate();
+            invalidPlayer = true;
         }
 
         public void applyFX(DSP_FX effect) {

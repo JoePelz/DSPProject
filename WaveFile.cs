@@ -332,8 +332,14 @@ namespace Comp3931_Project_JoePelz {
                     samples[c][t] += A * Math.Cos(Math.PI * 2 * f * t / sampleRate + phase);
                     /**/
 
+                    /*
+                    A = 1.25; f = 25; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+                    A = 1.25; f = 75; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+                    */
                     
-                    A = 1.0; f = 400; phase = 0;
+                    A = 1.0; f = 250; phase = 0;
                     samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
                     
                     A = 0.75; f = 600; phase = 0;

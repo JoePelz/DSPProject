@@ -38,6 +38,7 @@
             this.passthroughToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.triangleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cosineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.blackmanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lblFourierFreq = new System.Windows.Forms.Label();
             this.statusBar = new System.Windows.Forms.StatusStrip();
             this.statusSampling = new System.Windows.Forms.ToolStripStatusLabel();
@@ -45,7 +46,6 @@
             this.statusLength = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusSelection = new System.Windows.Forms.ToolStripStatusLabel();
             this.labelReport = new System.Windows.Forms.ToolStripStatusLabel();
-            this.blackmanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panelWave.SuspendLayout();
             this.panelFourier.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -100,7 +100,9 @@
             this.panelFourier.Size = new System.Drawing.Size(1000, 98);
             this.panelFourier.TabIndex = 3;
             this.panelFourier.Paint += new System.Windows.Forms.PaintEventHandler(this.panelFourier_Paint);
+            this.panelFourier.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panelFourier_MouseDown);
             this.panelFourier.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panelFourier_MouseMove);
+            this.panelFourier.MouseUp += new System.Windows.Forms.MouseEventHandler(this.panelFourier_MouseUp);
             this.panelFourier.Resize += new System.EventHandler(this.panelFourier_Resize);
             // 
             // contextMenuStrip1
@@ -108,7 +110,7 @@
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.windowingModeToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(170, 48);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(170, 26);
             // 
             // windowingModeToolStripMenuItem
             // 
@@ -124,23 +126,30 @@
             // passthroughToolStripMenuItem
             // 
             this.passthroughToolStripMenuItem.Name = "passthroughToolStripMenuItem";
-            this.passthroughToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.passthroughToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
             this.passthroughToolStripMenuItem.Text = "Passthrough";
             this.passthroughToolStripMenuItem.Click += new System.EventHandler(this.passthroughToolStripMenuItem_Click);
             // 
             // triangleToolStripMenuItem
             // 
             this.triangleToolStripMenuItem.Name = "triangleToolStripMenuItem";
-            this.triangleToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.triangleToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
             this.triangleToolStripMenuItem.Text = "Triangle";
             this.triangleToolStripMenuItem.Click += new System.EventHandler(this.triangleToolStripMenuItem_Click);
             // 
             // cosineToolStripMenuItem
             // 
             this.cosineToolStripMenuItem.Name = "cosineToolStripMenuItem";
-            this.cosineToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.cosineToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
             this.cosineToolStripMenuItem.Text = "Cosine";
             this.cosineToolStripMenuItem.Click += new System.EventHandler(this.cosineToolStripMenuItem_Click);
+            // 
+            // blackmanToolStripMenuItem
+            // 
+            this.blackmanToolStripMenuItem.Name = "blackmanToolStripMenuItem";
+            this.blackmanToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.blackmanToolStripMenuItem.Text = "Blackman";
+            this.blackmanToolStripMenuItem.Click += new System.EventHandler(this.blackmanToolStripMenuItem_Click);
             // 
             // lblFourierFreq
             // 
@@ -215,13 +224,6 @@
             this.labelReport.Name = "labelReport";
             this.labelReport.Size = new System.Drawing.Size(122, 19);
             this.labelReport.Text = "toolStripStatusLabel1";
-            // 
-            // blackmanToolStripMenuItem
-            // 
-            this.blackmanToolStripMenuItem.Name = "blackmanToolStripMenuItem";
-            this.blackmanToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.blackmanToolStripMenuItem.Text = "Blackman";
-            this.blackmanToolStripMenuItem.Click += new System.EventHandler(this.blackmanToolStripMenuItem_Click);
             // 
             // WaveForm
             // 

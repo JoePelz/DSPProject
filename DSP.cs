@@ -30,7 +30,6 @@ namespace Comp3931_Project_JoePelz {
         public static double[] InverseDFT(ref Complex[] A) {
             int N = A.Length;
             double[] S = new double[N];
-            
             double st;
             for (int t = 0; t < N; t++) {
                 st = 0;
@@ -40,9 +39,31 @@ namespace Comp3931_Project_JoePelz {
                 }
                 S[t] = st / N;
             }
-
             return S;
         }
+
+        /*
+        public static double[] convolve(double[] S, double[] kernel) {
+            int t;
+            double[] result = new double[S.Length];
+            for (t = 0; t < S.Length - kernel.Length; t++) {
+                result[t] = 0;
+                for (int i = 0; i < kernel.Length; i++) {
+                    result[t] += S[t+i] * kernel[i];
+                }
+                result[t] /= kernel.Length;
+            }
+            for (; t < S.Length; t++) {
+                result[t] = 0;
+                for (int i = 0; i < S.Length - t; i++) {
+                    result[t] += S[t+i] * kernel[i];
+                }
+                result[t] /= (S.Length - t);
+            }
+            //TODO: test this. Does it work?
+            return result;
+        }
+        */
 
         public static double[] convolveFilter(double[] S, double[] filter) {
             int t;
@@ -57,29 +78,26 @@ namespace Comp3931_Project_JoePelz {
 
             //convolve signal with filter
             double[] result = new double[S.Length];
-            for (t = 0; t < S.Length - w.Length; t++) {
+            for (t = 1; t < S.Length - w.Length; t++) {
                 result[t] = 0;
                 for (int i = 0; i < w.Length; i++) {
-                    result[t] += S[t] * w[i];
+                    result[t] += S[t+i] * w[i];
                 }
             }
             for (; t < S.Length; t++) {
                 result[t] = 0;
                 for (int i = 0; i < S.Length - t; i++) {
-                    result[t] += S[t] * w[i];
+                    result[t] += S[t+i] * w[i];
                 }
             }
-            //TODO: test this. Does it work?
+            //DC component doesn't change.
+            result[0] = S[0];
             return result;
         }
 
         public static double[] MergeChannels(double[][] samples) {
             double[] result = new double[samples[0].Length];
-            for (int channel = 0; channel < samples.Length; channel++) {
-                for (int t = 0; t< samples[0].Length; t++) {
-                    result[t] = 0;
-                }
-            }
+            
             throw new NotImplementedException();
         }
 
