@@ -41,8 +41,7 @@ namespace Comp3931_Project_JoePelz {
             }
             return S;
         }
-
-        /*
+        
         public static double[] convolve(double[] S, double[] kernel) {
             int t;
             double[] result = new double[S.Length];
@@ -63,7 +62,6 @@ namespace Comp3931_Project_JoePelz {
             //TODO: test this. Does it work?
             return result;
         }
-        */
 
         public static double[] convolveFilter(double[] S, double[] filter) {
             int t;
@@ -95,10 +93,43 @@ namespace Comp3931_Project_JoePelz {
             return result;
         }
 
-        public static double[] MergeChannels(double[][] samples) {
-            double[] result = new double[samples[0].Length];
-            
-            throw new NotImplementedException();
+        public static double[] MixSamples(double[] sampleA, double[] sampleB) {
+            double[] result = new double[Math.Max(sampleA.Length, sampleB.Length)];
+            long limit = Math.Min(sampleA.Length, sampleB.Length);
+            long t;
+            for (t = 0; t < limit; t++) {
+                result[t] = sampleA[t] + sampleB[t];
+            }
+
+            if (t < sampleA.Length) {
+                //copy rest of A
+                Array.Copy(sampleA, t, result, t, sampleA.Length - t);
+            } else if (t < sampleB.Length) {
+                //copy rest of B
+                Array.Copy(sampleB, t, result, t, sampleB.Length - t);
+            }
+
+            //If there's clipping, (sample > 1.0)
+            //divide by that value.
+            double max = maxAmplitude(result);
+            for (t = 0; t < result.Length; t++) {
+                result[t] /= max;
+            }
+
+            return result;
+        }
+
+        /* Returns the highest amplitude found in the sample set. 
+           Value is + or - accordingly.
+        */
+        private static double maxAmplitude(double[] samples) {
+            double max = 0;
+            for (int t = 0; t < samples.Length; t++) {
+                if (Math.Abs(samples[t]) > max) {
+                    max = samples[t];
+                }
+            }
+            return max;
         }
 
         public static void WindowPassthrough(ref double[] samples) {
