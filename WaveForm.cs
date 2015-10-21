@@ -76,6 +76,12 @@ namespace Comp3931_Project_JoePelz {
                 case Keys.Delete:
                     filterSelectedFrequencies();
                     return true;
+                case Keys.F:
+                    tViewStart = 0;
+                    tViewEnd = (int)(wave.getNumSamples()*1.02);
+                    updateScrollRange();
+                    panelWave.Invalidate();
+                    return true;
             }
 
             // run base implementation
@@ -113,7 +119,7 @@ namespace Comp3931_Project_JoePelz {
         }
 
         public void updatePlaybackStatus(PlaybackStatus update) {
-            //parent.playbackUpdate(update);
+            parent.playbackUpdate(update);
         }
 
         private void panelFourier_Paint(object sender, PaintEventArgs e) {
@@ -142,10 +148,10 @@ namespace Comp3931_Project_JoePelz {
         }
 
         private void drawAliasAxis(Graphics g) {
-            Pen dashed = new Pen(Color.DarkSeaGreen, 2);
+            Pen dashed = new Pen(Color.DarkSeaGreen, Math.Max(2, g.VisibleClipBounds.Width / fourierN / 6));
             float[] dashValues = { 3, 2 };
             dashed.DashPattern = dashValues;
-            float mid = g.VisibleClipBounds.Width / 2.0f;
+            float mid = g.VisibleClipBounds.Width / 2.0f + (g.VisibleClipBounds.Width / fourierN) / 2.0f;
             g.DrawLine(dashed, mid, 0.0f, mid, g.VisibleClipBounds.Height);
         }
 
@@ -543,13 +549,13 @@ namespace Comp3931_Project_JoePelz {
             
             double[] filter = new double[fourierN];
             for (int fbin = 0; fbin < filter.Length; fbin++) {
-                //TODO: I don't know if these should be <= or <
                 if ((fbin >= fSelStart && fbin <= fSelEnd) || (fbin >= fourierN - fSelEnd && fbin <= fourierN - fSelStart)) {
                     filter[fbin] = 0;
                 } else {
                     filter[fbin] = 1;
                 }
             }
+
             for (int channel = 0; channel < wave.channels; channel++) {
                 wave.samples[channel] = DSP.convolveFilter(wave.samples[channel], filter);
             }
