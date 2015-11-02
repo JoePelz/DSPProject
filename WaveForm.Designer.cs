@@ -29,8 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.panelWave = new System.Windows.Forms.Panel();
-            this.scrollerWave = new System.Windows.Forms.HScrollBar();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.panelFourier = new System.Windows.Forms.Panel();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -46,37 +44,11 @@
             this.statusLength = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusSelection = new System.Windows.Forms.ToolStripStatusLabel();
             this.labelReport = new System.Windows.Forms.ToolStripStatusLabel();
-            this.panelWave.SuspendLayout();
+            this.panelWave = new Comp3931_Project_JoePelz.WavePanel(this);
             this.panelFourier.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
             this.statusBar.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // panelWave
-            // 
-            this.panelWave.AutoScroll = true;
-            this.panelWave.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.panelWave.Controls.Add(this.scrollerWave);
-            this.panelWave.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelWave.Location = new System.Drawing.Point(0, 0);
-            this.panelWave.Name = "panelWave";
-            this.panelWave.Size = new System.Drawing.Size(1000, 160);
-            this.panelWave.TabIndex = 1;
-            this.panelWave.Paint += new System.Windows.Forms.PaintEventHandler(this.panelWave_Paint);
-            this.panelWave.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panelWave_MouseDown);
-            this.panelWave.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panelWave_MouseMove);
-            this.panelWave.MouseUp += new System.Windows.Forms.MouseEventHandler(this.panelWave_MouseUp);
-            this.panelWave.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.panelWave_MouseWheel);
-            this.panelWave.Resize += new System.EventHandler(this.panelWave_Resize);
-            // 
-            // scrollerWave
-            // 
-            this.scrollerWave.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.scrollerWave.Location = new System.Drawing.Point(0, 143);
-            this.scrollerWave.Name = "scrollerWave";
-            this.scrollerWave.Size = new System.Drawing.Size(1000, 17);
-            this.scrollerWave.TabIndex = 0;
-            this.scrollerWave.Scroll += new System.Windows.Forms.ScrollEventHandler(this.scrollerWave_Scroll);
             // 
             // splitter1
             // 
@@ -225,6 +197,16 @@
             this.labelReport.Size = new System.Drawing.Size(122, 19);
             this.labelReport.Text = "toolStripStatusLabel1";
             // 
+            // panelWave
+            // 
+            this.panelWave.AutoScroll = true;
+            this.panelWave.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.panelWave.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelWave.Location = new System.Drawing.Point(0, 0);
+            this.panelWave.Name = "panelWave";
+            this.panelWave.Size = new System.Drawing.Size(1000, 160);
+            this.panelWave.TabIndex = 1;
+            // 
             // WaveForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -237,7 +219,6 @@
             this.Text = "[Untitled.wav]";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.WaveForm_FormClosed);
             this.GotFocus += new System.EventHandler(this.WaveForm_GotFocus);
-            this.panelWave.ResumeLayout(false);
             this.panelFourier.ResumeLayout(false);
             this.panelFourier.PerformLayout();
             this.contextMenuStrip1.ResumeLayout(false);
@@ -248,10 +229,8 @@
         }
 
         #endregion
-        private System.Windows.Forms.Panel panelWave;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.Panel panelFourier;
-        private System.Windows.Forms.HScrollBar scrollerWave;
         private System.Windows.Forms.StatusStrip statusBar;
         private System.Windows.Forms.ToolStripStatusLabel statusSampling;
         private System.Windows.Forms.ToolStripStatusLabel statusBits;
@@ -265,6 +244,7 @@
         private System.Windows.Forms.ToolStripMenuItem triangleToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cosineToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem blackmanToolStripMenuItem;
+        private WavePanel panelWave;
     }
 }
 

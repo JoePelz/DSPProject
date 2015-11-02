@@ -8,3 +8,4 @@ C:\Users\Joe\Documents\Visual Studio 2015\Projects\Comp3931_Project_JoePelz\Comp
 C:\Users\Joe\Documents\Visual Studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\obj\Debug\Comp3931_Project_JoePelz.csproj.GenerateResource.Cache
 C:\Users\Joe\Documents\Visual Studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\obj\Debug\Comp3931_Project_JoePelz.exe
 C:\Users\Joe\Documents\Visual Studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\obj\Debug\Comp3931_Project_JoePelz.pdb
+C:\Users\Joe\documents\visual studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\obj\Debug\Comp3931_Project_JoePelz.WavePanel.resources

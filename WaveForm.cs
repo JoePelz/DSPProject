@@ -15,13 +15,9 @@ namespace Comp3931_Project_JoePelz {
         private Complex[][] DFT;
         private DSP_Window sampleWindowing = DSP_Window.pass;
         private int fourierN = 882;
-        private int tViewStart = 0;
-        private int tViewEnd = 800;
-        private int tSelStart = 0;
-        private int tSelEnd = 0;
         private bool invalidPlayer = true;
-        private int tMouseDown = 0;
-        private int tMouseDrag = 0;
+        private int tSelStart;
+        private int tSelEnd;
         private int fMouseDown = 0;
         private int fMouseDrag = 0;
         private int fSelStart = 0;
@@ -39,12 +35,12 @@ namespace Comp3931_Project_JoePelz {
             InitializeComponent();
             this.Text = wave.getName();
 
-            updateScrollRange();
             updateStatusBar();
-            //calculateSimpleFourier();
             calculateDFT();
             waveViewWidth = panelWave.ClientSize.Width;
             waveViewHeight = panelWave.ClientSize.Height;
+            panelWave.setSamples(wave.samples);
+            //panelWave.setPanelDrawHeight(panelWave.ClientSize.Height - scrollerWave.ClientSize.Height);
         }
 
         protected override bool ProcessCmdKey(ref Message message, Keys keys) {
@@ -62,25 +58,23 @@ namespace Comp3931_Project_JoePelz {
                     wavePlayPause();
                     return true;
                 case Keys.Home | Keys.Shift:
-                    updateSelection(0, tSelEnd);
+                    panelWave.TriggerHotkeys(ref message, keys);
                     return true;
                 case Keys.Home:
-                    updateSelection(0, 0);
+                    //updateSelection(0, 0);
                     return true;
                 case Keys.End | Keys.Shift:
-                    updateSelection(tSelStart, wave.getNumSamples() - 1);
+                    //updateSelection(tSelStart, wave.getNumSamples() - 1);
                     return true;
                 case Keys.End:
                     updateSelection(wave.getNumSamples() - 1, wave.getNumSamples() - 1);
                     return true;
                 case Keys.Delete:
-                    filterSelectedFrequencies();
+                    //filterSelectedFrequencies();
                     return true;
                 case Keys.F:
-                    tViewStart = 0;
-                    tViewEnd = (int)(wave.getNumSamples()*1.02);
-                    updateScrollRange();
-                    panelWave.Invalidate();
+                    panelWave.focusAll();
+                    Invalidate();
                     return true;
             }
 
@@ -210,100 +204,9 @@ namespace Comp3931_Project_JoePelz {
                 }
             }
         }
-
-        private void panelWave_Resize(object sender, System.EventArgs e) {
-            Graphics g = ((Control)sender).CreateGraphics();
-            if (g.VisibleClipBounds.Height != waveViewHeight)
-                ((Control)sender).Invalidate();
-
-            int oldRange = tViewEnd - tViewStart;
-            int newRange = (int)(oldRange * (float)g.VisibleClipBounds.Width / (float)waveViewWidth);
-            tViewEnd = Math.Min(wave.getNumSamples(), tViewStart + newRange);
-            tViewStart = tViewEnd - newRange;
-            if (tViewStart < 0) {
-                tViewStart = 0;
-                tViewEnd = tViewStart + newRange;
-            }
-            waveViewHeight = g.VisibleClipBounds.Height;
-            waveViewWidth = g.VisibleClipBounds.Width;
-            updateScrollRange();
-            panelWave.Invalidate();
-        }
-
+        
         private void panelFourier_Resize(object sender, System.EventArgs e) {
             ((Control)sender).Invalidate();
-        }
-
-        private void panelWave_Paint(object sender, PaintEventArgs e) {
-            Graphics g = e.Graphics;
-            drawSelection(g);
-            drawGrid(g);
-            drawWave(g);
-        }
-
-        private void drawGrid(Graphics g) {
-            RectangleF r = g.VisibleClipBounds;
-            r.Height -= this.scrollerWave.Height;
-            //x-axis line
-            g.FillRectangle(Brushes.White, 0, r.Height / 2 - 1, r.Width, 2);
-        }
-
-        private void drawWave(Graphics g) {
-            RectangleF r = g.VisibleClipBounds;
-            r.Height -= this.scrollerWave.Height;
-            int numPoints = Math.Min(tViewEnd - tViewStart, (int)Math.Ceiling(r.Width));
-            if (numPoints <= 0) return;
-            float timeStep = (float)(tViewEnd - tViewStart) / numPoints;
-            float xStep = r.Width / numPoints;
-            Pen p = new Pen(Color.Yellow, 2);
-            int index;
-            int viewRange = tViewEnd - tViewStart;
-
-            //TODO: handle multiple channels
-
-            //draw using DrawPolyLine
-            /**/
-            PointF[] pathPoints = new PointF[numPoints + 2];
-            pathPoints[0] = new PointF(-1, 0.5f * r.Height);
-            pathPoints[numPoints+1] = new PointF(r.Width, 0.5f * r.Height);
-            for (int i = 1; i <= numPoints; i++) {
-                index = (int)(Math.Round(i * timeStep + tViewStart));
-                if (index >= 0 && index < wave.getNumSamples()) {
-                    //pathPoints[i] = new PointF(i * xStep, (1.0f - (float)(wave.samples[0][index] * 0.5 + 0.5)) * r.Height);
-                    pathPoints[i] = new PointF((float)(index - tViewStart) / viewRange * r.Width, (1.0f - (float)(wave.samples[0][index] * 0.5 + 0.5)) * r.Height);
-                } else {
-                    pathPoints[i] = new PointF(i * xStep, 0.5f * r.Height);
-                }
-            }
-            g.DrawPolygon(p, pathPoints);
-            //*/
-
-            p.Dispose();
-        }
-
-        private void drawSelection(Graphics g) {
-            RectangleF client = g.VisibleClipBounds;
-            RectangleF r = new RectangleF();
-            int viewRange = tViewEnd - tViewStart;
-            r.Y = 0;
-            r.Height = client.Height;
-            r.X = Math.Max(0, (float)(tSelStart - tViewStart) / viewRange * client.Width);
-            r.Width = Math.Max(2, (float)(tSelEnd - tViewStart) / viewRange * client.Width - r.X);
-            g.FillRectangle(Brushes.DarkKhaki, r);
-        }
-
-        private void updateScrollRange() {
-            int viewRange = tViewEnd - tViewStart;
-            int scrollRange = wave.getNumSamples() - viewRange;
-            if (scrollRange < 0) {
-                scrollerWave.Maximum = 0;
-                scrollerWave.Value = 0;
-                scrollerWave.Enabled = false;
-            } else {
-                scrollerWave.Maximum = wave.getNumSamples() - viewRange;
-                scrollerWave.Value = tViewStart;
-                scrollerWave.Enabled = true;
-            }
         }
         
         private void updateStatusBar() {
@@ -313,43 +216,14 @@ namespace Comp3931_Project_JoePelz {
             statusSelection.Text = String.Format("Selected: {0:0.000} seconds ({1}..{2}", (tSelEnd - tSelStart) / (double)wave.sampleRate, tSelStart, tSelEnd);
         }
 
-        private void updateSelection(int low, int high) {
-            if (low < 0)
-                tSelStart = 0;
-            else if (low > wave.getNumSamples())
-                tSelStart = wave.getNumSamples() - 1;
-            else
-                tSelStart = low;
-            if (high < 0)
-                tSelEnd = 0;
-            else if (high > wave.getNumSamples())
-                tSelEnd = wave.getNumSamples() - 1;
-            else
-                tSelEnd = high;
-
+        //TODO: this isn't safe, and can go out of bounds.
+        public void updateSelection(int low, int high) {
+            tSelStart = low;
+            tSelEnd = high;
             calculateDFT();
             panelFourier.Invalidate();
-            panelWave.Invalidate();
             updateStatusBar();
             invalidPlayer = true;
-        }
-
-        private void scrollerWave_Scroll(object sender, ScrollEventArgs e) {
-            scrollWave(0);
-        }
-
-        private void scrollWave(int scrollValue) {
-            int range = tViewEnd - tViewStart;
-            if (scrollerWave.Value + scrollValue > scrollerWave.Maximum) {
-                scrollerWave.Value = scrollerWave.Maximum;
-            } else if (scrollerWave.Value + scrollValue < scrollerWave.Minimum) {
-                scrollerWave.Value = scrollerWave.Minimum;
-            } else {
-                scrollerWave.Value += scrollValue;
-            }
-            tViewStart = scrollerWave.Value;
-            tViewEnd = scrollerWave.Value + range;
-            panelWave.Invalidate();
         }
 
         private void WaveForm_GotFocus(object sender, EventArgs e) {
@@ -424,75 +298,6 @@ namespace Comp3931_Project_JoePelz {
                 player.Dispose();
             }
             parent.childDied(this);
-        }
-        
-        private void panelWave_MouseWheel(object sender, MouseEventArgs e) {
-            float scrollAmount = e.Delta / 120.0f;
-            if (scrollAmount < 0 && tViewEnd > wave.getNumSamples()) {
-                return;
-            } else if (scrollAmount > 0 && (tViewEnd - tViewStart) <= 10) {
-                return;
-            }
-            int mousePoint = (int)((double)e.X / panelWave.Width * (tViewEnd - tViewStart) + tViewStart);
-            int less = mousePoint - tViewStart;
-            int more = tViewEnd - mousePoint;
-            less = (int)(less * Math.Pow(0.83f, scrollAmount));
-            more = (int)(more * Math.Pow(0.83f, scrollAmount));
-
-            tViewEnd = mousePoint + more;
-            tViewStart = mousePoint - less;
-            
-            //avoid scrolling off the ends, prefer to block at sample 0.
-            int viewRange = tViewEnd - tViewStart;
-            if (tViewEnd > wave.getNumSamples()) {
-                tViewEnd = wave.getNumSamples();
-                tViewStart = tViewEnd - viewRange;
-            }
-            if (tViewStart < 0) {
-                tViewStart = 0;
-                tViewEnd = tViewStart + viewRange;
-            }
-
-            updateScrollRange();
-            panelWave.Invalidate();
-        }
-        
-        private void panelWave_MouseDown(object sender, MouseEventArgs e) {
-            //e.X and e.Y are in client coordinates
-            int time = (int)((double)e.X / panelWave.Width * (tViewEnd - tViewStart) + tViewStart);
-            tSelStart = time;
-            tSelEnd = time;
-            tMouseDown = time;
-            tMouseDrag = time;
-        }
-
-        private void panelWave_MouseMove(object sender, MouseEventArgs e) {
-            if (e.Button != MouseButtons.Left) {
-                return;
-            }
-            Point clientOrigin = new Point(0, 0);
-            clientOrigin = panelWave.PointToScreen(clientOrigin);
-            int tViewRange = tViewEnd - tViewStart;
-
-            tMouseDrag = (int)((double)e.X * tViewRange / panelWave.Width + tViewStart);
-            tSelStart = Math.Min(tMouseDown, tMouseDrag);
-            tSelEnd = Math.Max(tMouseDown, tMouseDrag);
-
-            //update drag-selection
-            if (tMouseDrag > tViewEnd) {
-                scrollWave(tMouseDrag - tViewEnd);
-            } else if (tMouseDrag < tViewStart) {
-                scrollWave(tMouseDrag - tViewStart);
-            } else {
-                panelWave.Invalidate();
-            }
-            panelWave.Update();
-        }
-
-        private void panelWave_MouseUp(object sender, MouseEventArgs e) {
-            tSelStart = Math.Min(tMouseDown, tMouseDrag);
-            tSelEnd = Math.Max(tMouseDown, tMouseDrag);
-            updateSelection(Math.Min(tMouseDown, tMouseDrag), Math.Max(tMouseDown, tMouseDrag));
         }
 
         public void setPath(String path) {
