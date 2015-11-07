@@ -33,6 +33,7 @@ namespace Comp3931_Project_JoePelz {
         private AutoResetEvent sem_closing = new AutoResetEvent(false);
 
         private WaveForm parentWindow;
+        private IntPtr parentHandle;
 
         private bool bPlaying;
         private bool bPaused;
@@ -60,6 +61,7 @@ namespace Comp3931_Project_JoePelz {
 
         public WavePlayer(WaveForm parent) {
             parentWindow = parent;
+            parentHandle = parent.Handle;
             updateStatus(PlaybackStatus.Disabled);
             hWaveOut = new IntPtr();
             h_pbuffer = new GCHandle();
@@ -67,29 +69,39 @@ namespace Comp3931_Project_JoePelz {
         }
 
         private void updateStatus(PlaybackStatus update) {
-            lock(this) {
-                switch(update) {
-                    case PlaybackStatus.Playing:
-                        bPlaying = true;
-                        bPaused = false;
-                        break;
-                    case PlaybackStatus.Paused:
-                        bPlaying = true;
-                        bPaused = true;
-                        break;
-                    case PlaybackStatus.Stopped:
-                    case PlaybackStatus.Disabled:
-                        bPlaying = false;
-                        bPaused = false;
-                        break;
-                }
-
-                //Causes crash when stop is pressed during playback.
-                //  May have to do with cross-thread calls.
-                //SetStatusCallback d = new SetStatusCallback(parentWindow.updatePlaybackStatus);
-                //parentWindow.Invoke(d, update);
-                //parentWindow.updatePlaybackStatus(update);
+            int signal;
+            switch(update) {
+                case PlaybackStatus.Playing:
+                    bPlaying = true;
+                    bPaused = false;
+                    signal = 0;
+                    break;
+                case PlaybackStatus.Paused:
+                    bPlaying = true;
+                    bPaused = true;
+                    signal = 1;
+                    break;
+                case PlaybackStatus.Stopped:
+                    signal = 2;
+                    bPlaying = false;
+                    bPaused = false;
+                    break;
+                case PlaybackStatus.Disabled:
+                    bPlaying = false;
+                    bPaused = false;
+                    signal = 3;
+                    break;
+                default:
+                    signal = 4;
+                    break;
             }
+
+            //Causes crash when stop is pressed during playback.
+            //  May have to do with cross-thread calls.
+            //SetStatusCallback d = new SetStatusCallback(parentWindow.updatePlaybackStatus);
+            //parentWindow.Invoke(d, update);
+            //parentWindow.updatePlaybackStatus(update);
+            WinmmHook.PostMessage(parentHandle, WinmmHook.WM_USER + 1, signal, 0);
         }
 
         public void handle_WOM_DONE() {

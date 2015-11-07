@@ -83,6 +83,8 @@ namespace Comp3931_Project_JoePelz {
         public const int TIME_SAMPLES = 0x0002;  // number of wave samples 
         public const int TIME_BYTES = 0x0004;  // current byte offset 
 
+        public const int WM_USER = 0x0400;
+
 
 
 
@@ -132,5 +134,8 @@ namespace Comp3931_Project_JoePelz {
         public static extern int waveInAddBuffer(IntPtr hWaveIn, ref WaveHdr lpWaveInHdr, int uSize);
         [DllImport(mmdll)]
         public static extern int waveInStart(IntPtr hWaveIn);
+
+        [DllImport("User32.dll")]
+        public static extern int PostMessage(IntPtr hwnd, uint msg, int wParam, int lParam);
     }
 }
