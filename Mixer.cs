@@ -72,12 +72,12 @@ namespace Comp3931_Project_JoePelz {
             if (path == null) {
                 wave = new WaveFile();
                 baby = new WaveForm(this, wave);
-                baby.report("New sine waves generated.");
+                baby.updateReport("New sine waves generated.");
             } else {
                 try {
                     wave = new WaveFile(path);
                     baby = new WaveForm(this, wave);
-                    baby.report(wave.getName()+" opened successfully!");
+                    baby.updateReport(wave.getName()+" opened successfully!");
                 } catch (Exception e) {
                     MessageBox.Show("Opening Failed: " + e.Message);
                     return;

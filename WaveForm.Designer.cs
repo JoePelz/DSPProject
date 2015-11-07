@@ -30,20 +30,19 @@
         {
             this.components = new System.ComponentModel.Container();
             this.splitter1 = new System.Windows.Forms.Splitter();
-            this.panelFourier = new System.Windows.Forms.Panel();
+            this.panelFourier = new Comp3931_Project_JoePelz.FourierPanel();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.windowingModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.passthroughToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.triangleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cosineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.blackmanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.lblFourierFreq = new System.Windows.Forms.Label();
             this.statusBar = new System.Windows.Forms.StatusStrip();
             this.statusSampling = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusBits = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusLength = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusSelection = new System.Windows.Forms.ToolStripStatusLabel();
-            this.labelReport = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusReport = new System.Windows.Forms.ToolStripStatusLabel();
             this.panelWave = new Comp3931_Project_JoePelz.WavePanel();
             this.panelFourier.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -64,18 +63,14 @@
             this.panelFourier.AutoScroll = true;
             this.panelFourier.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.panelFourier.ContextMenuStrip = this.contextMenuStrip1;
-            this.panelFourier.Controls.Add(this.lblFourierFreq);
             this.panelFourier.Controls.Add(this.statusBar);
             this.panelFourier.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelFourier.Location = new System.Drawing.Point(0, 163);
             this.panelFourier.Name = "panelFourier";
             this.panelFourier.Size = new System.Drawing.Size(1000, 98);
             this.panelFourier.TabIndex = 3;
-            this.panelFourier.Paint += new System.Windows.Forms.PaintEventHandler(this.panelFourier_Paint);
-            this.panelFourier.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panelFourier_MouseDown);
-            this.panelFourier.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panelFourier_MouseMove);
-            this.panelFourier.MouseUp += new System.Windows.Forms.MouseEventHandler(this.panelFourier_MouseUp);
-            this.panelFourier.Resize += new System.EventHandler(this.panelFourier_Resize);
+            this.panelFourier.SelChanged += new FreqSelChangedEventHandler(this.updateFreqSel);
+            this.panelFourier.Report += new ReportEventHandler(this.WaveForm_Report);
             // 
             // contextMenuStrip1
             // 
@@ -123,16 +118,6 @@
             this.blackmanToolStripMenuItem.Text = "Blackman";
             this.blackmanToolStripMenuItem.Click += new System.EventHandler(this.blackmanToolStripMenuItem_Click);
             // 
-            // lblFourierFreq
-            // 
-            this.lblFourierFreq.AutoSize = true;
-            this.lblFourierFreq.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblFourierFreq.Location = new System.Drawing.Point(3, 3);
-            this.lblFourierFreq.Name = "lblFourierFreq";
-            this.lblFourierFreq.Size = new System.Drawing.Size(87, 19);
-            this.lblFourierFreq.TabIndex = 1;
-            this.lblFourierFreq.Text = "Frequency:";
-            // 
             // statusBar
             // 
             this.statusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -140,7 +125,7 @@
             this.statusBits,
             this.statusLength,
             this.statusSelection,
-            this.labelReport});
+            this.statusReport});
             this.statusBar.Location = new System.Drawing.Point(0, 74);
             this.statusBar.Name = "statusBar";
             this.statusBar.Size = new System.Drawing.Size(1000, 24);
@@ -187,15 +172,15 @@
             this.statusSelection.Size = new System.Drawing.Size(122, 19);
             this.statusSelection.Text = "toolStripStatusLabel4";
             // 
-            // labelReport
+            // statusReport
             // 
-            this.labelReport.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            this.statusReport.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
-            this.labelReport.BorderStyle = System.Windows.Forms.Border3DStyle.Sunken;
-            this.labelReport.Name = "labelReport";
-            this.labelReport.Size = new System.Drawing.Size(122, 19);
-            this.labelReport.Text = "toolStripStatusLabel1";
+            this.statusReport.BorderStyle = System.Windows.Forms.Border3DStyle.Sunken;
+            this.statusReport.Name = "statusReport";
+            this.statusReport.Size = new System.Drawing.Size(122, 19);
+            this.statusReport.Text = "toolStripStatusLabel1";
             // 
             // panelWave
             // 
@@ -206,7 +191,7 @@
             this.panelWave.Name = "panelWave";
             this.panelWave.Size = new System.Drawing.Size(1000, 160);
             this.panelWave.TabIndex = 1;
-            this.panelWave.SelChanged += new SelectionChangedEventHandler(this.updateSelection);
+            this.panelWave.SelChanged += new TimeSelChangedEventHandler(this.updateSelection);
             // 
             // WaveForm
             // 
@@ -231,21 +216,20 @@
 
         #endregion
         private System.Windows.Forms.Splitter splitter1;
-        private System.Windows.Forms.Panel panelFourier;
         private System.Windows.Forms.StatusStrip statusBar;
         private System.Windows.Forms.ToolStripStatusLabel statusSampling;
         private System.Windows.Forms.ToolStripStatusLabel statusBits;
         private System.Windows.Forms.ToolStripStatusLabel statusLength;
         private System.Windows.Forms.ToolStripStatusLabel statusSelection;
-        private System.Windows.Forms.Label lblFourierFreq;
-        private System.Windows.Forms.ToolStripStatusLabel labelReport;
+        private System.Windows.Forms.ToolStripStatusLabel statusReport;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem windowingModeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem passthroughToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem triangleToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cosineToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem blackmanToolStripMenuItem;
-        private WavePanel panelWave;
+        private Comp3931_Project_JoePelz.WavePanel panelWave;
+        private Comp3931_Project_JoePelz.FourierPanel panelFourier;
     }
 }
 

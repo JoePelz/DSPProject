@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace Comp3931_Project_JoePelz {
 
-    public delegate void SelectionChangedEventHandler(object sender, EventArgs e);
+    public delegate void TimeSelChangedEventHandler(object sender, EventArgs e);
 
     class WavePanel : System.Windows.Forms.Panel {
         private float WavePanelHeight;
@@ -22,7 +22,7 @@ namespace Comp3931_Project_JoePelz {
         private int tMouseDown;
         private int tMouseDrag;
         private HScrollBar scrollerWave;
-        public event SelectionChangedEventHandler SelChanged;
+        public event TimeSelChangedEventHandler SelChanged;
 
         public WavePanel() : base() {
             InitializeComponent();
@@ -40,6 +40,19 @@ namespace Comp3931_Project_JoePelz {
         protected virtual void OnSelChanged(EventArgs e) {
             if (SelChanged != null)
                 SelChanged(this, e);
+        }
+
+        protected override void OnResize(EventArgs e) {
+            base.OnResize(e);
+            Graphics g = CreateGraphics();
+            if (Height != WavePanelHeight)
+                Invalidate();
+
+            int newRange = (int)(tViewRange * (float)Width / (float)WavePanelWidth);
+            updateView(tViewStart, newRange);
+            WavePanelHeight = Height;
+            WavePanelWidth = Width;
+            updateScrollRange();
         }
 
         public bool HotKeys(ref Message message, Keys keys) {
@@ -80,30 +93,26 @@ namespace Comp3931_Project_JoePelz {
             // WavePanel
             // 
             this.Controls.Add(this.scrollerWave);
-            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panelWave_MouseDown);
-            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panelWave_MouseMove);
-            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.panelWave_MouseUp);
-            this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.MouseWheel_Zoom);
-            this.Resize += new System.EventHandler(this.panelWave_Resize);
             this.ResumeLayout(false);
 
         }
 
-        private void panelWave_Resize(object sender, System.EventArgs e) {
-            Graphics g = ((Control)sender).CreateGraphics();
-            if (g.VisibleClipBounds.Height != WavePanelHeight)
-                ((Control)sender).Invalidate();
-            
-            int newRange = (int)(tViewRange * (float)g.VisibleClipBounds.Width / (float)WavePanelWidth);
-            updateView(tViewStart, newRange);
-            WavePanelHeight = g.VisibleClipBounds.Height;
-            WavePanelWidth = g.VisibleClipBounds.Width;
-            updateScrollRange();
-        }
+        /*
+        ==============   Properties  ================
+        */
 
         public void setSamples(double[][] data) {
             samples = data;
             updateScrollRange();
+        }
+
+        public int SelectionStart {
+            get { return tSelStart; }
+            set { updateSelection(value, tSelEnd); }
+        }
+        public int SelectionEnd {
+            get { return tSelEnd; }
+            set { updateSelection(tSelStart, value); }
         }
         
         /*
@@ -179,7 +188,7 @@ namespace Comp3931_Project_JoePelz {
                 scrollerWave.Enabled = false;
             } else {
                 scrollerWave.Maximum = samples[0].Length - tViewRange;
-                scrollerWave.Value = tViewStart;
+                scrollerWave.Value = Math.Min(tViewStart, scrollerWave.Maximum);
                 scrollerWave.Enabled = true;
             }
         }
@@ -202,7 +211,7 @@ namespace Comp3931_Project_JoePelz {
         
         private void updateView(int low, int range) {
             if (range > samples[0].Length) {
-                range = samples[0].Length;
+                range = samples[0].Length - 1;
             }
 
             if (low < 0) {
@@ -216,8 +225,9 @@ namespace Comp3931_Project_JoePelz {
             updateScrollRange();
             Invalidate();
         }
-        
-        private void MouseWheel_Zoom(object sender, MouseEventArgs e) {
+
+        protected override void OnMouseWheel(MouseEventArgs e) {
+            base.OnMouseWheel(e);
             float zoomAmount = e.Delta / 120.0f;
             if (zoomAmount < 0 && tViewRange >= samples[0].Length) {
                 return;
@@ -237,16 +247,21 @@ namespace Comp3931_Project_JoePelz {
         ==============   Selection, and Selecting  ================
         */
 
-        private void panelWave_MouseDown(object sender, MouseEventArgs e) {
+        protected override void OnMouseDown(MouseEventArgs e) {
+            base.OnMouseDown(e);
             //e.X and e.Y are in client coordinates
-            int time = (int)((double)e.X / this.Width * tViewRange + tViewStart);
+            int time = (int)((double)e.X / Width * tViewRange + tViewStart);
+            
+            //intentionally set the selection WITHOUT triggering an event
             tSelStart = time;
             tSelEnd = time;
             tMouseDown = time;
             tMouseDrag = time;
         }
 
-        private void panelWave_MouseMove(object sender, MouseEventArgs e) {
+        protected override void OnMouseMove(MouseEventArgs e) {
+            base.OnMouseMove(e);
+
             if (e.Button != MouseButtons.Left) {
                 return;
             }
@@ -268,9 +283,8 @@ namespace Comp3931_Project_JoePelz {
             Update();
         }
 
-        private void panelWave_MouseUp(object sender, MouseEventArgs e) {
-            tSelStart = Math.Min(tMouseDown, tMouseDrag);
-            tSelEnd = Math.Max(tMouseDown, tMouseDrag);
+        protected override void OnMouseUp(MouseEventArgs e) {
+            base.OnMouseUp(e);
             updateSelection(Math.Min(tMouseDown, tMouseDrag), Math.Max(tMouseDown, tMouseDrag));
         }
 
@@ -292,13 +306,5 @@ namespace Comp3931_Project_JoePelz {
             Invalidate();
         }
 
-        public int SelectionStart {
-            get { return tSelStart; }
-            set { updateSelection(value, tSelEnd); }
-        }
-        public int SelectionEnd {
-            get { return tSelEnd; }
-            set { updateSelection(tSelStart, value); }
-        }
     }
 }
