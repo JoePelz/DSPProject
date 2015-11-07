@@ -115,7 +115,6 @@ namespace Comp3931_Project_JoePelz {
 
         private void btnOpen_Click(object sender, EventArgs e) {
             if (openFileDialog1.ShowDialog() == DialogResult.OK) {
-                //MessageBox.Show("Opening: " + openFileDialog1.FileName);
                 createChildWindow(openFileDialog1.FileName);
             }
         }
@@ -128,26 +127,53 @@ namespace Comp3931_Project_JoePelz {
         }
 
         public void playbackUpdate(PlaybackStatus update) {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Mixer));
             switch (update) {
                 case PlaybackStatus.Playing:
                     btnPlay.Image = pause;
                     btnPlay.Enabled = true;
                     btnStop.Enabled = true;
+                    btnRecord.Enabled = false;
+                    btnRecord.Image = (System.Drawing.Image)(resources.GetObject("btnRecordDisabled"));
+                    btnNew.Enabled = false;
+                    btnNew.Image = (System.Drawing.Image)(resources.GetObject("btnNewDisabled"));
+                    btnOpen.Enabled = false;
+                    btnOpen.Image = (System.Drawing.Image)(resources.GetObject("btnOpenDisabled"));
+                    btnSave.Enabled = false;
+                    btnSave.Image = (System.Drawing.Image)(resources.GetObject("btnSaveDisabled"));
                     break;
                 case PlaybackStatus.Paused:
                     btnPlay.Image = play;
                     btnPlay.Enabled = true;
                     btnStop.Enabled = true;
+                    btnRecord.Enabled = false;
+                    btnRecord.Image = (System.Drawing.Image)(resources.GetObject("btnRecordDisabled"));
+                    btnNew.Enabled = false;
+                    btnNew.Image = (System.Drawing.Image)(resources.GetObject("btnNewDisabled"));
+                    btnOpen.Enabled = false;
+                    btnOpen.Image = (System.Drawing.Image)(resources.GetObject("btnOpenDisabled"));
+                    btnSave.Enabled = false;
+                    btnSave.Image = (System.Drawing.Image)(resources.GetObject("btnSaveDisabled"));
                     break;
                 case PlaybackStatus.Stopped:
                     btnPlay.Image = play;
                     btnPlay.Enabled = true;
                     btnStop.Enabled = true;
+                    btnRecord.Enabled = true;
+                    btnRecord.Image = (System.Drawing.Image)(resources.GetObject("btnRecord.Image"));
+                    btnNew.Enabled = true;
+                    btnNew.Image = (System.Drawing.Image)(resources.GetObject("btnNew.Image"));
+                    btnOpen.Enabled = true;
+                    btnOpen.Image = (System.Drawing.Image)(resources.GetObject("btnOpen.Image"));
+                    btnSave.Enabled = true;
+                    btnSave.Image = (System.Drawing.Image)(resources.GetObject("btnSave.Image"));
                     break;
                 case PlaybackStatus.Disabled:
                     btnPlay.Image = play;
                     btnPlay.Enabled = false;
                     btnStop.Enabled = false;
+                    btnRecord.Enabled = true;
+                    btnRecord.Image = (System.Drawing.Image)(resources.GetObject("btnRecord.Image"));
                     break;
             }
         }
