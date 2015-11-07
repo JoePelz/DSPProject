@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Comp3931_Project_JoePelz {
-    class Complex {
+    public class Complex {
         public double re, im;
 
         public Complex(double real, double imaginary) {

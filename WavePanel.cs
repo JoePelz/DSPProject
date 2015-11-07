@@ -7,36 +7,42 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Comp3931_Project_JoePelz {
+
+    public delegate void SelectionChangedEventHandler(object sender, EventArgs e);
+
     class WavePanel : System.Windows.Forms.Panel {
         private float WavePanelHeight;
         private float WavePanelWidth;
         private double[][] samples;
         private int drawHeight;
         private int tViewStart;
-        private int tViewEnd;
+        private int tViewRange;
         private int tSelStart;
         private int tSelEnd;
         private int tMouseDown;
         private int tMouseDrag;
         private HScrollBar scrollerWave;
-        private WaveForm parent;
-        
-        public WavePanel(WaveForm parent) : base() {
+        public event SelectionChangedEventHandler SelChanged;
+
+        public WavePanel() : base() {
             InitializeComponent();
+            this.DoubleBuffered = true;
+
             samples = new double[1][];
-            samples[0] = new double[2];
-            //drawHeight = 100;
-            tSelStart = 50;
-            tSelEnd = 75;
-            tViewStart = 0;
-            tViewEnd = 1000;
+            samples[0] = new double[128];
+            updateView(0, 1000);
+            updateSelection(0, 0);
             WavePanelHeight = Height;
             WavePanelWidth = Width;
-            this.parent = parent;
             updateScrollRange();
         }
+        
+        protected virtual void OnSelChanged(EventArgs e) {
+            if (SelChanged != null)
+                SelChanged(this, e);
+        }
 
-        protected override bool ProcessCmdKey(ref Message message, Keys keys) {
+        public bool HotKeys(ref Message message, Keys keys) {
             switch (keys) {
                 case Keys.Home | Keys.Shift:
                     updateSelection(0, tSelEnd);
@@ -51,13 +57,11 @@ namespace Comp3931_Project_JoePelz {
                     updateSelection(samples[0].Length - 1, samples[0].Length - 1);
                     return true;
                 case Keys.F:
-                    focusAll();
+                    updateView(0, samples[0].Length);
                     Invalidate();
                     return true;
             }
-
-            // run base implementation
-            return base.ProcessCmdKey(ref message, keys);
+            return false;
         }
 
         private void InitializeComponent() {
@@ -81,7 +85,6 @@ namespace Comp3931_Project_JoePelz {
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.panelWave_MouseUp);
             this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.MouseWheel_Zoom);
             this.Resize += new System.EventHandler(this.panelWave_Resize);
-            this.DoubleBuffered = true;
             this.ResumeLayout(false);
 
         }
@@ -90,25 +93,22 @@ namespace Comp3931_Project_JoePelz {
             Graphics g = ((Control)sender).CreateGraphics();
             if (g.VisibleClipBounds.Height != WavePanelHeight)
                 ((Control)sender).Invalidate();
-
-            int oldRange = tViewEnd - tViewStart;
-            int newRange = (int)(oldRange * (float)g.VisibleClipBounds.Width / (float)WavePanelWidth);
-            tViewEnd = Math.Min(samples[0].Length, tViewStart + newRange);
-            tViewStart = tViewEnd - newRange;
-            if (tViewStart < 0) {
-                tViewStart = 0;
-                tViewEnd = tViewStart + newRange;
-            }
+            
+            int newRange = (int)(tViewRange * (float)g.VisibleClipBounds.Width / (float)WavePanelWidth);
+            updateView(tViewStart, newRange);
             WavePanelHeight = g.VisibleClipBounds.Height;
             WavePanelWidth = g.VisibleClipBounds.Width;
             updateScrollRange();
-            Invalidate();
         }
 
         public void setSamples(double[][] data) {
             samples = data;
             updateScrollRange();
         }
+        
+        /*
+        ==============   Painting the wave  ================
+        */
 
         protected override void OnPaint(PaintEventArgs e) {
             base.OnPaint(e);
@@ -131,21 +131,19 @@ namespace Comp3931_Project_JoePelz {
 
             RectangleF client = g.VisibleClipBounds;
             RectangleF r = new RectangleF();
-            int viewRange = tViewEnd - tViewStart;
             r.Y = 0;
             r.Height = client.Height;
-            r.X = Math.Max(0, (float)(tSelStart - tViewStart) / viewRange * client.Width);
-            r.Width = Math.Max(2, (float)(tSelEnd - tViewStart) / viewRange * client.Width - r.X);
+            r.X = Math.Max(0, (float)(tSelStart - tViewStart) / tViewRange * client.Width);
+            r.Width = Math.Max(2, (float)(tSelEnd - tViewStart) / tViewRange * client.Width - r.X);
             g.FillRectangle(Brushes.DarkKhaki, r);
         }
 
         private void drawWave(Graphics g) {
             RectangleF r = g.VisibleClipBounds;
             r.Height = drawHeight;
-            int viewRange = tViewEnd - tViewStart;
-            int numPoints = Math.Min(viewRange, (int)Math.Ceiling(r.Width));
+            int numPoints = Math.Min(tViewRange, (int)Math.Ceiling(r.Width));
             if (numPoints <= 0) return;
-            float timeStep = (float)(viewRange) / numPoints;
+            float timeStep = (float)(tViewRange) / numPoints;
             float xStep = r.Width / numPoints;
             Pen p = new Pen(Color.Yellow, 2);
             int index;
@@ -159,7 +157,7 @@ namespace Comp3931_Project_JoePelz {
             for (int i = 1; i <= numPoints; i++) {
                 index = (int)(Math.Round(i * timeStep + tViewStart));
                 if (index >= 0 && index < samples[0].Length) {
-                    pathPoints[i] = new PointF((float)(index - tViewStart) / viewRange * r.Width, (1.0f - (float)(samples[0][index] * 0.5 + 0.5)) * r.Height);
+                    pathPoints[i] = new PointF((float)(index - tViewStart) / tViewRange * r.Width, (1.0f - (float)(samples[0][index] * 0.5 + 0.5)) * r.Height);
                 } else {
                     pathPoints[i] = new PointF(i * xStep, 0.5f * r.Height);
                 }
@@ -169,22 +167,24 @@ namespace Comp3931_Project_JoePelz {
             p.Dispose();
         }
         
+        /*
+        ==============   Visible region controls  ================
+        */
+
         private void updateScrollRange() {
-            int viewRange = tViewEnd - tViewStart;
-            int scrollRange = samples[0].Length - viewRange;
+            int scrollRange = samples[0].Length - tViewRange;
             if (scrollRange < 0) {
                 scrollerWave.Maximum = 0;
                 scrollerWave.Value = 0;
                 scrollerWave.Enabled = false;
             } else {
-                scrollerWave.Maximum = samples[0].Length - viewRange;
+                scrollerWave.Maximum = samples[0].Length - tViewRange;
                 scrollerWave.Value = tViewStart;
                 scrollerWave.Enabled = true;
             }
         }
 
         private void scrollWave(int scrollValue) {
-            int range = tViewEnd - tViewStart;
             if (scrollerWave.Value + scrollValue > scrollerWave.Maximum) {
                 scrollerWave.Value = scrollerWave.Maximum;
             } else if (scrollerWave.Value + scrollValue < scrollerWave.Minimum) {
@@ -192,71 +192,54 @@ namespace Comp3931_Project_JoePelz {
             } else {
                 scrollerWave.Value += scrollValue;
             }
-            tViewStart = scrollerWave.Value;
-            tViewEnd = scrollerWave.Value + range;
+            updateView(scrollerWave.Value, tViewRange);
             Invalidate();
         }
 
         private void scrollerWave_Scroll(object sender, ScrollEventArgs e) {
             scrollWave(0);
         }
+        
+        private void updateView(int low, int range) {
+            if (range > samples[0].Length) {
+                range = samples[0].Length;
+            }
 
-        public void focusAll() {
-            updateView(0, samples[0].Length);
-            updateScrollRange();
-        }
-
-        private void updateView(int low, int high) {
-            if (low < 0)
+            if (low < 0) {
                 tViewStart = 0;
-            else if (low > samples[0].Length)
-                tViewStart = samples[0].Length - 1;
-            else
+            } else if (low > samples[0].Length) {
+                tViewStart = samples[0].Length - range;
+            } else {
                 tViewStart = low;
-            if (high < 0)
-                tViewEnd = 0;
-            else if (high > samples[0].Length)
-                tViewEnd = samples[0].Length - 1;
-            else
-                tViewEnd = high;
-
-            Invalidate();
-        }
-
-        private void MouseWheel_Zoom(object sender, MouseEventArgs e) {
-            float scrollAmount = e.Delta / 120.0f;
-            if (scrollAmount < 0 && tViewEnd > samples[0].Length) {
-                return;
-            } else if (scrollAmount > 0 && (tViewEnd - tViewStart) <= 10) {
-                return;
             }
-            int mousePoint = (int)((double)e.X / this.Width * (tViewEnd - tViewStart) + tViewStart);
-            int less = mousePoint - tViewStart;
-            int more = tViewEnd - mousePoint;
-            less = (int)(less * Math.Pow(0.83f, scrollAmount));
-            more = (int)(more * Math.Pow(0.83f, scrollAmount));
-
-            tViewEnd = mousePoint + more;
-            tViewStart = mousePoint - less;
-            
-            //avoid scrolling off the ends, prefer to block at sample 0.
-            int viewRange = tViewEnd - tViewStart;
-            if (tViewEnd > samples[0].Length) {
-                tViewEnd = samples[0].Length;
-                tViewStart = tViewEnd - viewRange;
-            }
-            if (tViewStart < 0) {
-                tViewStart = 0;
-                tViewEnd = tViewStart + viewRange;
-            }
-
+            tViewRange = range;
             updateScrollRange();
             Invalidate();
         }
+        
+        private void MouseWheel_Zoom(object sender, MouseEventArgs e) {
+            float zoomAmount = e.Delta / 120.0f;
+            if (zoomAmount < 0 && tViewRange >= samples[0].Length) {
+                return;
+            } else if (zoomAmount > 0 && tViewRange <= 40) {
+                return;
+            }
+            int tMousePoint = (int)((double)e.X / this.Width * tViewRange + tViewStart);
+            int less = tMousePoint - tViewStart;
+            less = (int)(less * Math.Pow(0.83f, zoomAmount));
+            int newRange = (int)(tViewRange * Math.Pow(0.83f, zoomAmount));
+
+            updateView(tMousePoint - less, newRange);
+            updateScrollRange();
+        }
+        
+        /*
+        ==============   Selection, and Selecting  ================
+        */
 
         private void panelWave_MouseDown(object sender, MouseEventArgs e) {
             //e.X and e.Y are in client coordinates
-            int time = (int)((double)e.X / this.Width * (tViewEnd - tViewStart) + tViewStart);
+            int time = (int)((double)e.X / this.Width * tViewRange + tViewStart);
             tSelStart = time;
             tSelEnd = time;
             tMouseDown = time;
@@ -269,15 +252,14 @@ namespace Comp3931_Project_JoePelz {
             }
             Point clientOrigin = new Point(0, 0);
             clientOrigin = this.PointToScreen(clientOrigin);
-            int tViewRange = tViewEnd - tViewStart;
 
             tMouseDrag = (int)((double)e.X * tViewRange / Width + tViewStart);
             tSelStart = Math.Min(tMouseDown, tMouseDrag);
             tSelEnd = Math.Max(tMouseDown, tMouseDrag);
 
             //update drag-selection
-            if (tMouseDrag > tViewEnd) {
-                scrollWave(tMouseDrag - tViewEnd);
+            if (tMouseDrag > (tViewStart + tViewRange)) {
+                scrollWave(tMouseDrag - (tViewStart + tViewRange));
             } else if (tMouseDrag < tViewStart) {
                 scrollWave(tMouseDrag - tViewStart);
             } else {
@@ -306,14 +288,17 @@ namespace Comp3931_Project_JoePelz {
             else
                 tSelEnd = high;
 
-            //TODO: send message to parent that selection changed.
-            parent.updateSelection(tSelStart, tSelEnd);
+            OnSelChanged(EventArgs.Empty);
             Invalidate();
         }
 
-        public void getSelection(out int low, out int high) {
-            low = tSelStart;
-            high = tSelEnd;
+        public int SelectionStart {
+            get { return tSelStart; }
+            set { updateSelection(value, tSelEnd); }
+        }
+        public int SelectionEnd {
+            get { return tSelEnd; }
+            set { updateSelection(tSelStart, value); }
         }
     }
 }

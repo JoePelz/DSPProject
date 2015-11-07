@@ -44,7 +44,7 @@
             this.statusLength = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusSelection = new System.Windows.Forms.ToolStripStatusLabel();
             this.labelReport = new System.Windows.Forms.ToolStripStatusLabel();
-            this.panelWave = new Comp3931_Project_JoePelz.WavePanel(this);
+            this.panelWave = new Comp3931_Project_JoePelz.WavePanel();
             this.panelFourier.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
             this.statusBar.SuspendLayout();
@@ -206,6 +206,7 @@
             this.panelWave.Name = "panelWave";
             this.panelWave.Size = new System.Drawing.Size(1000, 160);
             this.panelWave.TabIndex = 1;
+            this.panelWave.SelChanged += new SelectionChangedEventHandler(this.updateSelection);
             // 
             // WaveForm
             // 

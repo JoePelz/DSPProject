@@ -22,8 +22,6 @@ namespace Comp3931_Project_JoePelz {
         private int fMouseDrag = 0;
         private int fSelStart = 0;
         private int fSelEnd = 0;
-        private float waveViewHeight = 0;
-        private float waveViewWidth = 0;
         private float fourierViewHeight = 0;
         private float fourierViewWidth = 0;
 
@@ -33,21 +31,19 @@ namespace Comp3931_Project_JoePelz {
             this.wave = wave;
             this.parent = parent;
             InitializeComponent();
+            
             this.Text = wave.getName();
 
             updateStatusBar();
             calculateDFT();
-            waveViewWidth = panelWave.ClientSize.Width;
-            waveViewHeight = panelWave.ClientSize.Height;
             panelWave.setSamples(wave.samples);
-            //panelWave.setPanelDrawHeight(panelWave.ClientSize.Height - scrollerWave.ClientSize.Height);
         }
 
         protected override bool ProcessCmdKey(ref Message message, Keys keys) {
             switch (keys) {
                 case Keys.C | Keys.Control:
                     copySelection();
-                    return true; // signal that we've processed this key
+                    return true;
                 case Keys.V | Keys.Control:
                     pasteAtSelection();
                     return true;
@@ -57,25 +53,12 @@ namespace Comp3931_Project_JoePelz {
                 case Keys.Space:
                     wavePlayPause();
                     return true;
-                case Keys.Home | Keys.Shift:
-                    panelWave.TriggerHotkeys(ref message, keys);
-                    return true;
-                case Keys.Home:
-                    //updateSelection(0, 0);
-                    return true;
-                case Keys.End | Keys.Shift:
-                    //updateSelection(tSelStart, wave.getNumSamples() - 1);
-                    return true;
-                case Keys.End:
-                    updateSelection(wave.getNumSamples() - 1, wave.getNumSamples() - 1);
-                    return true;
                 case Keys.Delete:
-                    //filterSelectedFrequencies();
+                    filterSelectedFrequencies();
                     return true;
-                case Keys.F:
-                    panelWave.focusAll();
-                    Invalidate();
-                    return true;
+            }
+            if (panelWave.HotKeys(ref message, keys)) {
+                return true;
             }
 
             // run base implementation
@@ -213,13 +196,12 @@ namespace Comp3931_Project_JoePelz {
             statusSampling.Text = String.Format("Sampling Rate: {0} Hz", wave.sampleRate);
             statusBits.Text = String.Format("Depth: {0}-bit", wave.bitDepth);
             statusLength.Text = String.Format("Length: {0:0.000}s ({1} samples)", (double)wave.getNumSamples() / wave.sampleRate, wave.getNumSamples());
-            statusSelection.Text = String.Format("Selected: {0:0.000} seconds ({1}..{2}", (tSelEnd - tSelStart) / (double)wave.sampleRate, tSelStart, tSelEnd);
+            statusSelection.Text = String.Format("Selected: {0:0.000} seconds ({1}..{2})", (tSelEnd - tSelStart + 1) / (double)wave.sampleRate, tSelStart, tSelEnd);
         }
 
-        //TODO: this isn't safe, and can go out of bounds.
-        public void updateSelection(int low, int high) {
-            tSelStart = low;
-            tSelEnd = high;
+        public void updateSelection(Object sender, EventArgs e) {
+            tSelStart = panelWave.SelectionStart;
+            tSelEnd   = panelWave.SelectionEnd;
             calculateDFT();
             panelFourier.Invalidate();
             updateStatusBar();
@@ -329,7 +311,7 @@ namespace Comp3931_Project_JoePelz {
                 MessageBox.Show("No samples selected to cut!");
             }
             int after = wave.getNumSamples();
-            updateSelection(tSelStart, tSelStart);
+            panelWave.SelectionEnd = tSelStart;
         }
 
         public void pasteAtSelection() {
@@ -345,7 +327,7 @@ namespace Comp3931_Project_JoePelz {
             wave.cutSelection(tSelStart, tSelEnd);
             wave.pasteSelection(tSelStart, data);
             report(data.getNumSamples() + " samples pasted from the clipboard!");
-            updateSelection(tSelStart, tSelStart + data.getNumSamples());
+            panelWave.SelectionEnd = tSelStart + data.getNumSamples();
         }
 
         public void filterSelectedFrequencies() {
