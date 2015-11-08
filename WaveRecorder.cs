@@ -80,7 +80,10 @@ namespace Comp3931_Project_JoePelz {
             recorder.Join();
 
             //create a new wave file with the byte array.
-            WaveFile result = new WaveFile(8, 1, 11025, pSaveBuffer);
+            WaveFile result = null;
+            if (pSaveBuffer != null && pSaveBuffer.Length > 0) {
+                result = new WaveFile(8, 1, 11025, pSaveBuffer);
+            }
 
             return result;
         }
@@ -154,21 +157,24 @@ namespace Comp3931_Project_JoePelz {
                 header = waveHdr2;
                 samples = pBuffer2;
             } else {
-                throw new Exception("Wave header doesn't exist??");
+                if (bEnding) {
+                    WinmmHook.waveInClose(hWaveIn);
+                }
+                return;
             }
             
-            byte[] result;
-            int copyPos;
-            if (pSaveBuffer == null) {
-                result = new byte[header.dwBytesRecorded];
-                copyPos = 0;
-            } else {
-                result = new byte[pSaveBuffer.Length + header.dwBytesRecorded];
-                pSaveBuffer.CopyTo(result, 0);
-                copyPos = pSaveBuffer.Length;
-            }
-            Array.Copy(samples, 0, result, copyPos, header.dwBytesRecorded);
-            pSaveBuffer = result;
+                byte[] result;
+                int copyPos;
+                if (pSaveBuffer == null) {
+                    result = new byte[header.dwBytesRecorded];
+                    copyPos = 0;
+                } else {
+                    result = new byte[pSaveBuffer.Length + header.dwBytesRecorded];
+                    pSaveBuffer.CopyTo(result, 0);
+                    copyPos = pSaveBuffer.Length;
+                }
+                Array.Copy(samples, 0, result, copyPos, header.dwBytesRecorded);
+                pSaveBuffer = result;
             
             if (bEnding) {
                 WinmmHook.waveInClose(hWaveIn);

@@ -59,7 +59,6 @@
             this.btnRecord = new System.Windows.Forms.ToolStripButton();
             this.btnStop = new System.Windows.Forms.ToolStripButton();
             this.btnPlay = new System.Windows.Forms.ToolStripButton();
-            this.btnPause = new System.Windows.Forms.ToolStripButton();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.menuStrip1.SuspendLayout();
@@ -75,7 +74,7 @@
             this.windowToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(335, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(334, 24);
             this.menuStrip1.TabIndex = 2;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -242,11 +241,10 @@
             this.toolStripSeparator2,
             this.btnRecord,
             this.btnStop,
-            this.btnPlay,
-            this.btnPause});
+            this.btnPlay});
             this.toolBarMain.Location = new System.Drawing.Point(0, 24);
             this.toolBarMain.Name = "toolBarMain";
-            this.toolBarMain.Size = new System.Drawing.Size(335, 55);
+            this.toolBarMain.Size = new System.Drawing.Size(334, 55);
             this.toolBarMain.TabIndex = 3;
             this.toolBarMain.Text = "toolStrip1";
             // 
@@ -317,16 +315,6 @@
             this.btnPlay.Text = "Play active sample";
             this.btnPlay.Click += new System.EventHandler(this.btnPlay_Click);
             // 
-            // btnPause
-            // 
-            this.btnPause.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnPause.Image = ((System.Drawing.Image)(resources.GetObject("btnPause.Image")));
-            this.btnPause.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnPause.Name = "btnPause";
-            this.btnPause.Size = new System.Drawing.Size(52, 52);
-            this.btnPause.Text = "toolStripButton1";
-            this.btnPause.Visible = false;
-            // 
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
@@ -345,7 +333,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(335, 80);
+            this.ClientSize = new System.Drawing.Size(334, 80);
             this.Controls.Add(this.toolBarMain);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -391,7 +379,6 @@
         private System.Windows.Forms.ToolStripButton btnRecord;
         private System.Windows.Forms.ToolStripButton btnStop;
         private System.Windows.Forms.ToolStripButton btnPlay;
-        private System.Windows.Forms.ToolStripButton btnPause;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
     }

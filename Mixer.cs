@@ -142,7 +142,7 @@ namespace Comp3931_Project_JoePelz {
             switch (update) {
                 case PlaybackStatus.Playing:
                     btnPlay.Enabled = true;
-                    btnPlay.Image = (System.Drawing.Image)(resources.GetObject("btnPause.Image"));
+                    btnPlay.Image = (System.Drawing.Image)(resources.GetObject("btnPause"));
                     btnStop.Enabled = true;
                     btnRecord.Enabled = false;
                     btnRecord.Image = (System.Drawing.Image)(resources.GetObject("btnRecordDisabled"));
