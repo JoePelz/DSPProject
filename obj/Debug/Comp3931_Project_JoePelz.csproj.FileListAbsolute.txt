@@ -9,4 +9,4 @@ C:\Users\Joe\documents\visual studio 2015\Projects\Comp3931_Project_JoePelz\Comp
 C:\Users\Joe\documents\visual studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\obj\Debug\Comp3931_Project_JoePelz.pdb
 C:\Users\Joe\documents\visual studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\obj\Debug\Comp3931_Project_JoePelz.csprojResolveAssemblyReference.cache
 C:\Users\Joe\documents\visual studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\obj\Debug\Comp3931_Project_JoePelz.FourierPanel.resources
-C:\Users\Joe\documents\visual studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\obj\Debug\Comp3931_Project_JoePelz.ReportEventArgs.resources
+C:\Users\Joe\Documents\Visual Studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\obj\Debug\Comp3931_Project_JoePelz.WaveForm.resources

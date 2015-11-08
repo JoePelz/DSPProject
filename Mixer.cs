@@ -9,8 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Comp3931_Project_JoePelz {
-
-
+    
     public partial class Mixer : Form {
         Image play;
         Image pause;
@@ -23,6 +22,15 @@ namespace Comp3931_Project_JoePelz {
             InitializeComponent();
             play = btnPlay.Image;
             pause = btnPause.Image;
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e) {
+            base.OnFormClosed(e);
+            //ensure all children are destroyed properly
+            // (children have subthreads)
+            while (children.Count > 0) {
+                children[0].Close();
+            }
         }
 
         private void quitToolStripMenuItem_Click(object sender, EventArgs e) {

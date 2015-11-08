@@ -12,16 +12,9 @@ namespace Comp3931_Project_JoePelz {
 
     public delegate void ReportEventHandler(object sender, ReportEventArgs e);
 
-    public class ReportEventArgs : EventArgs {
-        public String report;
-        public ReportEventArgs(String message) : base() {
-            report = message;
-        }
-    }
-
     public partial class WaveForm : Form {
         private WaveFile wave;
-        private WavePlayer player;
+        private WavePlayer player2;
         private Complex[][] DFT;
         private DSP_Window sampleWindowing = DSP_Window.pass;
         private int fourierN = 882;
@@ -45,7 +38,7 @@ namespace Comp3931_Project_JoePelz {
             panelWave.setSamples(wave.samples);
             panelFourier.SampleRate = wave.sampleRate;
         }
-
+        
         protected override bool ProcessCmdKey(ref Message message, Keys keys) {
             switch (keys) {
                 case Keys.C | Keys.Control:
@@ -74,57 +67,35 @@ namespace Comp3931_Project_JoePelz {
 
         protected override void WndProc(ref Message m) {
             if (m.Msg == WinmmHook.WM_USER + 1) {
-                int val = (int)m.WParam;
-                switch(val) {
-                    case 0:
-                        updatePlaybackStatus(PlaybackStatus.Playing);
-                        break;
-                    case 1:
-                        updatePlaybackStatus(PlaybackStatus.Paused);
-                        break;
-                    case 2:
-                        updatePlaybackStatus(PlaybackStatus.Stopped);
-                        break;
-                    case 3:
-                        updatePlaybackStatus(PlaybackStatus.Disabled);
-                        break;
-                    default:
-                        updatePlaybackStatus(PlaybackStatus.Stopped);
-                        break;
-                }
-                return;
+                PlaybackStatus status = (PlaybackStatus)(int)m.WParam;
+                updatePlaybackStatus(status);
             }
             base.WndProc(ref m);
         }
 
         public void wavePlayPause() {
-            if (player == null) {
-                player = new WavePlayer(this);
+            if (player2 == null) {
+                player2 = new WavePlayer(this);
             }
 
             if (invalidPlayer) {
-                if (player != null) {
-                    player.stop();
-                    player.Dispose();
+                if (tSelEnd == tSelStart) {
+                    player2.setWave(wave.copySelection(tSelStart, wave.getNumSamples()));
+                } else {
+                    player2.setWave(wave.copySelection(tSelStart, tSelEnd));
                 }
-                if (tSelEnd == tSelStart)
-                    player.setWave(wave.copySelection(tSelStart, wave.getNumSamples()));
-                else
-                    player.setWave(wave.copySelection(tSelStart, tSelEnd));
                 invalidPlayer = false;
             }
-            
-            if (player.isPlaying()) {
-                player.pause(); //toggles paused/unpaused
+
+            if (player2.Playing) {
+                player2.PlaybackPause();
             } else {
-                player.play();
+                player2.PlaybackStart();
             }
         }
 
         public void waveStop() {
-            if (player != null) {
-                player.stop();
-            }
+            player2.PlaybackStop();
         }
 
         public void updatePlaybackStatus(PlaybackStatus update) {
@@ -156,6 +127,7 @@ namespace Comp3931_Project_JoePelz {
 
             DFT[0] = DSP.DFT(ref samples);
             panelFourier.Fourier = DFT;
+            panelFourier.Invalidate();
         }
 
         private void updateStatusBar() {
@@ -188,9 +160,8 @@ namespace Comp3931_Project_JoePelz {
         }
 
         private void WaveForm_FormClosed(object sender, FormClosedEventArgs e) {
-            waveStop();
-            if (player != null) {
-                player.Dispose();
+            if (player2 != null) {
+                player2.Dispose();
             }
             parent.childDied(this);
         }
@@ -303,6 +274,13 @@ namespace Comp3931_Project_JoePelz {
         private void blackmanToolStripMenuItem_Click(object sender, EventArgs e) {
             sampleWindowing = DSP_Window.blackman;
             calculateDFT();
+        }
+    }
+
+    public class ReportEventArgs : EventArgs {
+        public String report;
+        public ReportEventArgs(String message) : base() {
+            report = message;
         }
     }
 }
