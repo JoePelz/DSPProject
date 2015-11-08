@@ -11,8 +11,6 @@ using System.Windows.Forms;
 namespace Comp3931_Project_JoePelz {
     
     public partial class Mixer : Form {
-        Image play;
-        Image pause;
         WaveRecorder rec;
         List<WaveForm> children = new List<WaveForm>();
         WaveForm activeChild = null;
@@ -20,8 +18,6 @@ namespace Comp3931_Project_JoePelz {
 
         public Mixer() {
             InitializeComponent();
-            play = btnPlay.Image;
-            pause = btnPause.Image;
         }
 
         protected override void OnFormClosed(FormClosedEventArgs e) {
@@ -31,6 +27,14 @@ namespace Comp3931_Project_JoePelz {
             while (children.Count > 0) {
                 children[0].Close();
             }
+        }
+
+        protected override void WndProc(ref Message m) {
+            if (m.Msg == WinmmHook.WM_USER + 1) {
+                PlaybackStatus status = (PlaybackStatus)(int)m.WParam;
+                playbackUpdate(status);
+            }
+            base.WndProc(ref m);
         }
 
         private void quitToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -131,15 +135,14 @@ namespace Comp3931_Project_JoePelz {
             foreach (WaveForm wave in children) {
                 wave.waveStop();
             }
-            btnPlay.Image = play;
         }
 
         public void playbackUpdate(PlaybackStatus update) {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Mixer));
             switch (update) {
                 case PlaybackStatus.Playing:
-                    btnPlay.Image = pause;
                     btnPlay.Enabled = true;
+                    btnPlay.Image = (System.Drawing.Image)(resources.GetObject("btnPause.Image"));
                     btnStop.Enabled = true;
                     btnRecord.Enabled = false;
                     btnRecord.Image = (System.Drawing.Image)(resources.GetObject("btnRecordDisabled"));
@@ -151,11 +154,15 @@ namespace Comp3931_Project_JoePelz {
                     btnSave.Image = (System.Drawing.Image)(resources.GetObject("btnSaveDisabled"));
                     break;
                 case PlaybackStatus.Paused:
-                    btnPlay.Image = play;
-                    btnPlay.Enabled = true;
-                    btnStop.Enabled = true;
-                    btnRecord.Enabled = false;
-                    btnRecord.Image = (System.Drawing.Image)(resources.GetObject("btnRecordDisabled"));
+                    btnPlay.Image = (System.Drawing.Image)(resources.GetObject("btnPlay.Image"));
+                    break;
+                case PlaybackStatus.Recording:
+                    btnPlay.Enabled = false;
+                    btnPlay.Image = (System.Drawing.Image)(resources.GetObject("btnPlayDisabled"));
+                    btnStop.Enabled = false;
+                    btnPlay.Image = (System.Drawing.Image)(resources.GetObject("btnStopDisabled"));
+                    btnRecord.Enabled = true;
+                    btnRecord.Image = (System.Drawing.Image)(resources.GetObject("btnRecord.Image"));
                     btnNew.Enabled = false;
                     btnNew.Image = (System.Drawing.Image)(resources.GetObject("btnNewDisabled"));
                     btnOpen.Enabled = false;
@@ -164,9 +171,10 @@ namespace Comp3931_Project_JoePelz {
                     btnSave.Image = (System.Drawing.Image)(resources.GetObject("btnSaveDisabled"));
                     break;
                 case PlaybackStatus.Stopped:
-                    btnPlay.Image = play;
                     btnPlay.Enabled = true;
+                    btnPlay.Image = (System.Drawing.Image)(resources.GetObject("btnPlay.Image"));
                     btnStop.Enabled = true;
+                    btnStop.Image = (System.Drawing.Image)(resources.GetObject("btnStop.Image"));
                     btnRecord.Enabled = true;
                     btnRecord.Image = (System.Drawing.Image)(resources.GetObject("btnRecord.Image"));
                     btnNew.Enabled = true;
@@ -177,9 +185,10 @@ namespace Comp3931_Project_JoePelz {
                     btnSave.Image = (System.Drawing.Image)(resources.GetObject("btnSave.Image"));
                     break;
                 case PlaybackStatus.Disabled:
-                    btnPlay.Image = play;
                     btnPlay.Enabled = false;
+                    btnPlay.Image = (System.Drawing.Image)(resources.GetObject("btnPlayDisabled"));
                     btnStop.Enabled = false;
+                    btnStop.Image = (System.Drawing.Image)(resources.GetObject("btnStopDisabled"));
                     btnRecord.Enabled = true;
                     btnRecord.Image = (System.Drawing.Image)(resources.GetObject("btnRecord.Image"));
                     break;
@@ -191,6 +200,9 @@ namespace Comp3931_Project_JoePelz {
                 rec = new WaveRecorder(this);
                 rec.RecordingStart();
             } else {
+                System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Mixer));
+                btnRecord.Enabled = false;
+                btnRecord.Image = (System.Drawing.Image)(resources.GetObject("btnRecordDisabled"));
                 rec.RecordingStop();
                 WaveFile result = rec.getSamples();
                 if (result != null) {

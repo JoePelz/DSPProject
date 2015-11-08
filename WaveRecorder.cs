@@ -140,6 +140,7 @@ namespace Comp3931_Project_JoePelz {
             
             bRecording = true;
             bEnding = false;
+            WinmmHook.PostMessage(parentHandle, WinmmHook.WM_USER + 1, (int)PlaybackStatus.Recording, 0);
             WinmmHook.waveInStart(hWaveIn);
         }
 
@@ -189,6 +190,7 @@ namespace Comp3931_Project_JoePelz {
             }
 
             bRecording = false;
+            WinmmHook.PostMessage(parentHandle, WinmmHook.WM_USER + 1, (int)PlaybackStatus.Stopped, 0);
             MsgQueue.Add(RecorderMsg.TERMINATING);
         }
 
