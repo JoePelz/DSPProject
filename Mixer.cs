@@ -188,13 +188,15 @@ namespace Comp3931_Project_JoePelz {
 
         private void btnRecord_Click(object sender, EventArgs e) {
             if (rec == null) {
-                rec = new WaveRecorder();
-                rec.beginRecording();
+                rec = new WaveRecorder(this);
+                rec.RecordingStart();
             } else {
-                rec.stopRecording();
-                WaveFile result = rec.getResult();
-                if (result != null)
+                rec.RecordingStop();
+                WaveFile result = rec.getSamples();
+                if (result != null) {
                     createChildWindow(result);
+                }
+                rec.Dispose();
                 rec = null;
             }
         }

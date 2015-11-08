@@ -20,9 +20,10 @@ namespace Comp3931_Project_JoePelz {
     }
 
     public enum PlaybackStatus {
+        Recording,
         Playing,
-        Stopped,
         Paused,
+        Stopped,
         Disabled
     }
 
@@ -65,6 +66,7 @@ namespace Comp3931_Project_JoePelz {
 
         public void setWave(WaveFile source) {
             wave = source;
+            waveform = new WaveFormat(wave.sampleRate, wave.bitDepth, wave.channels);
             pbuffer = wave.getData();
         }
 
@@ -158,7 +160,6 @@ namespace Comp3931_Project_JoePelz {
         }
 
         private void OnPlaybackStart() {
-            waveform = new WaveFormat(wave.sampleRate, wave.bitDepth, wave.channels);
 
             int val = WinmmHook.waveOutOpen(out hWaveOut, WinmmHook.WAVE_MAPPER, waveform, WaveOutProc, 0, WinmmHook.CALLBACK_FUNCTION);
 

@@ -196,6 +196,7 @@ namespace Comp3931_Project_JoePelz {
             }
             int after = wave.getNumSamples();
             panelWave.SelectionEnd = tSelStart;
+            panelWave.setSamples(wave.samples);
         }
 
         public void pasteAtSelection() {
@@ -212,6 +213,7 @@ namespace Comp3931_Project_JoePelz {
             wave.pasteSelection(tSelStart, data);
             updateReport(data.getNumSamples() + " samples pasted from the clipboard!");
             panelWave.SelectionEnd = tSelStart + data.getNumSamples();
+            panelWave.setSamples(wave.samples);
         }
 
         public void filterSelectedFrequencies() {
