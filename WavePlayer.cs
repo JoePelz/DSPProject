@@ -51,14 +51,13 @@ namespace Comp3931_Project_JoePelz {
             hWaveOut = new IntPtr();
             h_pbuffer = new GCHandle();
             WaveOutProc = new WinmmHook.WaveDelegate(WOM_proc);
-
-            player = new Thread(new ThreadStart(threadProc));
-            player.Start();
         }
 
         ~WavePlayer() {
             Dispose();
         }
+
+        /* ===============  Entry points =============== */
 
         public bool Playing {
             get { return bPlaying; }
@@ -71,16 +70,26 @@ namespace Comp3931_Project_JoePelz {
         }
 
         public void PlaybackStart() {
+            if (player != null && player.IsAlive) {
+                return;
+            }
+            
+            player = new Thread(new ThreadStart(threadProc));
+            player.Start();
+
             MsgQueue.Add(PlayerMsg.PLAYBACK_START);
         }
 
         public void PlaybackStop() {
             MsgQueue.Add(PlayerMsg.PLAYBACK_STOP);
+            player.Join(); //should I block here until the player quits?
         }
 
         public void PlaybackPause() {
             MsgQueue.Add(PlayerMsg.PLAYBACK_PAUSE);
         }
+
+        /* ===============  Queue processing =============== */
 
         private void WOM_proc(IntPtr hdrvr, int uMsg, int dwUser, ref WaveHdr wavhdr, int dwParam2) {
             switch (uMsg) {
@@ -127,6 +136,8 @@ namespace Comp3931_Project_JoePelz {
             }
         }
 
+        /* ===============  Actions =============== */
+
         private void OnWomOpen() {
             if (h_pbuffer.IsAllocated)
                 h_pbuffer.Free();
@@ -145,6 +156,7 @@ namespace Comp3931_Project_JoePelz {
         }
 
         private void OnWomDone() {
+            bTerminating = true;
             WinmmHook.waveOutUnprepareHeader(hWaveOut, ref pWaveHdr1, Marshal.SizeOf(pWaveHdr1));
             WinmmHook.waveOutClose(hWaveOut);
         }
@@ -160,7 +172,6 @@ namespace Comp3931_Project_JoePelz {
         }
 
         private void OnPlaybackStart() {
-
             int val = WinmmHook.waveOutOpen(out hWaveOut, WinmmHook.WAVE_MAPPER, waveform, WaveOutProc, 0, WinmmHook.CALLBACK_FUNCTION);
 
             if (val == 11) {
@@ -182,7 +193,10 @@ namespace Comp3931_Project_JoePelz {
         }
 
         private void OnPlaybackStop() {
+            bTerminating = true;
             WinmmHook.waveOutReset(hWaveOut);
+            WinmmHook.waveOutUnprepareHeader(hWaveOut, ref pWaveHdr1, Marshal.SizeOf(pWaveHdr1));
+            WinmmHook.waveOutClose(hWaveOut);
         }
 
         private void OnTerminating() {
@@ -198,7 +212,7 @@ namespace Comp3931_Project_JoePelz {
         }
 
         public void Dispose() {
-            if (player.IsAlive) {
+            if (player != null && player.IsAlive) {
                 MsgQueue.Add(PlayerMsg.TERMINATING);
                 player.Join();
             }

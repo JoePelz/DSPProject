@@ -97,9 +97,7 @@ namespace Comp3931_Project_JoePelz {
 
         }
 
-        /*
-        ==============   Properties  ================
-        */
+        /* ==============   Properties  ================ */
 
         public void setSamples(double[][] data) {
             samples = data;
@@ -115,9 +113,7 @@ namespace Comp3931_Project_JoePelz {
             set { updateSelection(tSelStart, value); }
         }
         
-        /*
-        ==============   Painting the wave  ================
-        */
+        /* ==============   Painting the wave  ================ */
 
         protected override void OnPaint(PaintEventArgs e) {
             base.OnPaint(e);
@@ -133,7 +129,11 @@ namespace Comp3931_Project_JoePelz {
         private void drawGrid(Graphics g) {
             RectangleF r = g.VisibleClipBounds;
             //x-axis line
-            g.FillRectangle(Brushes.White, 0, drawHeight / 2 - 1, r.Width, 2);
+            int channels = samples.Length;
+            for (int c = 0; c < channels; c++) {
+                float row = drawHeight * (float)(c*2+1) / (channels*2);
+                g.FillRectangle(Brushes.White, 0, row - 1, r.Width, 2);
+            }
         }
 
         private void drawSelection(Graphics g) {
@@ -156,29 +156,31 @@ namespace Comp3931_Project_JoePelz {
             float xStep = r.Width / numPoints;
             Pen p = new Pen(Color.Yellow, 2);
             int index;
-
-            //TODO: handle multiple channels
+            int channels = samples.Length;
 
             //draw using DrawPolyLine
             PointF[] pathPoints = new PointF[numPoints + 2];
-            pathPoints[0] = new PointF(-1, 0.5f * r.Height);
-            pathPoints[numPoints + 1] = new PointF(r.Width, 0.5f * r.Height);
-            for (int i = 1; i <= numPoints; i++) {
-                index = (int)(Math.Round(i * timeStep + tViewStart));
-                if (index >= 0 && index < samples[0].Length) {
-                    pathPoints[i] = new PointF((float)(index - tViewStart) / tViewRange * r.Width, (1.0f - (float)(samples[0][index] * 0.5 + 0.5)) * r.Height);
-                } else {
-                    pathPoints[i] = new PointF(i * xStep, 0.5f * r.Height);
+
+            for (int c = 0; c < channels; c++) {
+                float center = drawHeight * (float)(c * 2 + 1) / (channels * 2);
+                float range = drawHeight / (float)channels;
+                pathPoints[0] = new PointF(-1, center);
+                pathPoints[numPoints + 1] = new PointF(r.Width, center);
+                for (int i = 1; i <= numPoints; i++) {
+                    index = (int)(Math.Round(i * timeStep + tViewStart));
+                    if (index >= 0 && index < samples[c].Length) {
+                        pathPoints[i] = new PointF((float)(index - tViewStart) / tViewRange * r.Width, (-(float)(samples[c][index] * 0.5)) * range + center);
+                    } else {
+                        pathPoints[i] = new PointF(i * xStep, center);
+                    }
                 }
+                g.DrawLines(p, pathPoints);
             }
-            g.DrawLines(p, pathPoints);
 
             p.Dispose();
         }
         
-        /*
-        ==============   Visible region controls  ================
-        */
+        /* ==============   Visible region controls  ================ */
 
         private void updateScrollRange() {
             int scrollRange = samples[0].Length - tViewRange;
@@ -243,9 +245,7 @@ namespace Comp3931_Project_JoePelz {
             updateScrollRange();
         }
         
-        /*
-        ==============   Selection, and Selecting  ================
-        */
+        /* ==============   Selection, and Selecting  ================ */
 
         protected override void OnMouseDown(MouseEventArgs e) {
             base.OnMouseDown(e);

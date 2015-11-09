@@ -40,11 +40,9 @@ namespace Comp3931_Project_JoePelz {
         private static int INP_BUFFER_SIZE = 16384;
 
         private WinmmHook.WaveDelegate WaveInProc;
-        private Mixer parentWindow; //TODO: would an event work, instead of coupling this to the mixer class?
         private IntPtr parentHandle;
 
-        public WaveRecorder(Mixer parent) {
-            parentWindow = parent;
+        public WaveRecorder(System.Windows.Forms.Form parent) {
             parentHandle = parent.Handle;
             MsgQueue = new BlockingCollection<RecorderMsg>();
 
@@ -55,6 +53,12 @@ namespace Comp3931_Project_JoePelz {
             pBuffer2 = new byte[16384];
             waveform = new WaveFormat(11025, 8, 1);
         }
+
+        ~WaveRecorder() {
+            Dispose();
+        }
+
+        /* ===============  Entry points =============== */
 
         public bool Recording {
             get { return bRecording; }
@@ -87,6 +91,8 @@ namespace Comp3931_Project_JoePelz {
 
             return result;
         }
+
+        /* ===============  Queue processing =============== */
 
         private void WIM_proc(IntPtr hdrvr, int uMsg, int dwUser, ref WaveHdr wavhdr, int dwParam2) {
             switch (uMsg) {
@@ -136,6 +142,8 @@ namespace Comp3931_Project_JoePelz {
                 msg = MsgQueue.Take();
             }
         }
+
+        /* ===============  Actions =============== */
 
         private void OnWimOpen() {
             WinmmHook.waveInAddBuffer(hWaveIn, ref waveHdr1, Marshal.SizeOf(waveHdr1));
