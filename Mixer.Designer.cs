@@ -39,15 +39,15 @@
             this.quitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fidelityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.changeSampleRateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem8 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem9 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_Fidel_Sample_11025 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_Fidel_Sample_22050 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_Fidel_Sample_44100 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_Fidel_Sample_88200 = new System.Windows.Forms.ToolStripMenuItem();
             this.changeBitRateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_Fidel_Bits_8 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_Fidel_Bits_16 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_Fidel_Bits_24 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_Fidel_Bits_32 = new System.Windows.Forms.ToolStripMenuItem();
             this.fXToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reverseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.windowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -140,74 +140,82 @@
             // changeSampleRateToolStripMenuItem
             // 
             this.changeSampleRateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripMenuItem6,
-            this.toolStripMenuItem7,
-            this.toolStripMenuItem8,
-            this.toolStripMenuItem9});
+            this.menu_Fidel_Sample_11025,
+            this.menu_Fidel_Sample_22050,
+            this.menu_Fidel_Sample_44100,
+            this.menu_Fidel_Sample_88200});
             this.changeSampleRateToolStripMenuItem.Name = "changeSampleRateToolStripMenuItem";
-            this.changeSampleRateToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.changeSampleRateToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.changeSampleRateToolStripMenuItem.Text = "Sample Rate";
             // 
-            // toolStripMenuItem6
+            // menu_Fidel_Sample_11025
             // 
-            this.toolStripMenuItem6.Name = "toolStripMenuItem6";
-            this.toolStripMenuItem6.Size = new System.Drawing.Size(104, 22);
-            this.toolStripMenuItem6.Text = "11025";
+            this.menu_Fidel_Sample_11025.Name = "menu_Fidel_Sample_11025";
+            this.menu_Fidel_Sample_11025.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_Sample_11025.Tag = 11025;
+            this.menu_Fidel_Sample_11025.Text = "11025";
+            this.menu_Fidel_Sample_11025.Click += new System.EventHandler(this.menu_Fidel_Click);
             // 
-            // toolStripMenuItem7
+            // menu_Fidel_Sample_22050
             // 
-            this.toolStripMenuItem7.Name = "toolStripMenuItem7";
-            this.toolStripMenuItem7.Size = new System.Drawing.Size(104, 22);
-            this.toolStripMenuItem7.Text = "22050";
+            this.menu_Fidel_Sample_22050.Name = "menu_Fidel_Sample_22050";
+            this.menu_Fidel_Sample_22050.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_Sample_22050.Tag = 22050;
+            this.menu_Fidel_Sample_22050.Text = "22050";
+            this.menu_Fidel_Sample_22050.Click += new System.EventHandler(this.menu_Fidel_Click);
             // 
-            // toolStripMenuItem8
+            // menu_Fidel_Sample_44100
             // 
-            this.toolStripMenuItem8.Name = "toolStripMenuItem8";
-            this.toolStripMenuItem8.Size = new System.Drawing.Size(104, 22);
-            this.toolStripMenuItem8.Text = "44100";
+            this.menu_Fidel_Sample_44100.Name = "menu_Fidel_Sample_44100";
+            this.menu_Fidel_Sample_44100.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_Sample_44100.Tag = 44100;
+            this.menu_Fidel_Sample_44100.Text = "44100";
+            this.menu_Fidel_Sample_44100.Click += new System.EventHandler(this.menu_Fidel_Click);
             // 
-            // toolStripMenuItem9
+            // menu_Fidel_Sample_88200
             // 
-            this.toolStripMenuItem9.Name = "toolStripMenuItem9";
-            this.toolStripMenuItem9.Size = new System.Drawing.Size(104, 22);
-            this.toolStripMenuItem9.Text = "88200";
+            this.menu_Fidel_Sample_88200.Name = "menu_Fidel_Sample_88200";
+            this.menu_Fidel_Sample_88200.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_Sample_88200.Tag = 88200;
+            this.menu_Fidel_Sample_88200.Text = "88200";
+            this.menu_Fidel_Sample_88200.Click += new System.EventHandler(this.menu_Fidel_Click);
             // 
             // changeBitRateToolStripMenuItem
             // 
             this.changeBitRateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripMenuItem2,
-            this.toolStripMenuItem3,
-            this.toolStripMenuItem4,
-            this.toolStripMenuItem5});
+            this.menu_Fidel_Bits_8,
+            this.menu_Fidel_Bits_16,
+            this.menu_Fidel_Bits_24,
+            this.menu_Fidel_Bits_32});
             this.changeBitRateToolStripMenuItem.Name = "changeBitRateToolStripMenuItem";
-            this.changeBitRateToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.changeBitRateToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.changeBitRateToolStripMenuItem.Text = "Bit Rate";
             // 
-            // toolStripMenuItem2
+            // menu_Fidel_Bits_8
             // 
-            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(86, 22);
-            this.toolStripMenuItem2.Text = "8";
+            this.menu_Fidel_Bits_8.Name = "menu_Fidel_Bits_8";
+            this.menu_Fidel_Bits_8.Size = new System.Drawing.Size(86, 22);
+            this.menu_Fidel_Bits_8.Text = "8";
             // 
-            // toolStripMenuItem3
+            // menu_Fidel_Bits_16
             // 
-            this.toolStripMenuItem3.Checked = true;
-            this.toolStripMenuItem3.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(86, 22);
-            this.toolStripMenuItem3.Text = "16";
+            this.menu_Fidel_Bits_16.Checked = true;
+            this.menu_Fidel_Bits_16.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.menu_Fidel_Bits_16.Name = "menu_Fidel_Bits_16";
+            this.menu_Fidel_Bits_16.Size = new System.Drawing.Size(86, 22);
+            this.menu_Fidel_Bits_16.Text = "16";
             // 
-            // toolStripMenuItem4
+            // menu_Fidel_Bits_24
             // 
-            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(86, 22);
-            this.toolStripMenuItem4.Text = "24";
+            this.menu_Fidel_Bits_24.Name = "menu_Fidel_Bits_24";
+            this.menu_Fidel_Bits_24.Size = new System.Drawing.Size(86, 22);
+            this.menu_Fidel_Bits_24.Text = "24";
             // 
-            // toolStripMenuItem5
+            // menu_Fidel_Bits_32
             // 
-            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(86, 22);
-            this.toolStripMenuItem5.Text = "32";
+            this.menu_Fidel_Bits_32.Name = "menu_Fidel_Bits_32";
+            this.menu_Fidel_Bits_32.Size = new System.Drawing.Size(86, 22);
+            this.menu_Fidel_Bits_32.Text = "32";
             // 
             // fXToolStripMenuItem
             // 
@@ -359,15 +367,15 @@
         private System.Windows.Forms.ToolStripMenuItem quitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fidelityToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem changeSampleRateToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem6;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem7;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem8;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem9;
+        private System.Windows.Forms.ToolStripMenuItem menu_Fidel_Sample_11025;
+        private System.Windows.Forms.ToolStripMenuItem menu_Fidel_Sample_22050;
+        private System.Windows.Forms.ToolStripMenuItem menu_Fidel_Sample_44100;
+        private System.Windows.Forms.ToolStripMenuItem menu_Fidel_Sample_88200;
         private System.Windows.Forms.ToolStripMenuItem changeBitRateToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem3;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem4;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem5;
+        private System.Windows.Forms.ToolStripMenuItem menu_Fidel_Bits_8;
+        private System.Windows.Forms.ToolStripMenuItem menu_Fidel_Bits_16;
+        private System.Windows.Forms.ToolStripMenuItem menu_Fidel_Bits_24;
+        private System.Windows.Forms.ToolStripMenuItem menu_Fidel_Bits_32;
         private System.Windows.Forms.ToolStripMenuItem fXToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem reverseToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem windowToolStripMenuItem;

@@ -73,6 +73,14 @@ namespace Comp3931_Project_JoePelz {
             base.WndProc(ref m);
         }
 
+        public int SampleRate {
+            get { return wave.sampleRate; }
+        }
+
+        public int BitDepth {
+            get { return wave.bitDepth; }
+        }
+
         public void wavePlayPause() {
             if (player2 == null) {
                 player2 = new WavePlayer(this);

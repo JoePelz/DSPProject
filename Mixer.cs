@@ -72,6 +72,19 @@ namespace Comp3931_Project_JoePelz {
         private void focusChild(object sender, EventArgs e) {
             ToolStripMenuItem menuItem = (ToolStripMenuItem)sender;
             children[(int)menuItem.Tag].Focus();
+            updateFidelityMenu();
+        }
+
+        private void updateFidelityMenu() {
+            ToolStripMenuItem[] bitrates    = { menu_Fidel_Bits_8, menu_Fidel_Bits_16, menu_Fidel_Bits_24, menu_Fidel_Bits_32 };
+            ToolStripMenuItem[] sampleRates = { menu_Fidel_Sample_11025, menu_Fidel_Sample_22050, menu_Fidel_Sample_44100, menu_Fidel_Sample_88200 };
+            foreach (ToolStripMenuItem item in sampleRates) {
+                if (activeChild.SampleRate == (int)item.Tag) {
+                    item.Checked = true;
+                } else {
+                    item.Checked = false;
+                }
+            }
         }
 
         private void btnNew_Click(object sender, EventArgs e) {
@@ -227,6 +240,10 @@ namespace Comp3931_Project_JoePelz {
                 return;
             }
             activeChild.applyFX(DSP_FX.reverse);
+        }
+
+        private void menu_Fidel_Click(object sender, EventArgs e) {
+
         }
     }
 }
