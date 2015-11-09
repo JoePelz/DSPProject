@@ -189,7 +189,12 @@ namespace Comp3931_Project_JoePelz {
                 return;
             }
 
-            WinmmHook.waveInAddBuffer(hWaveIn, ref header, Marshal.SizeOf(lastHeader));
+
+            if (lastHeader == 1) {
+                WinmmHook.waveInAddBuffer(hWaveIn, ref waveHdr1, Marshal.SizeOf(waveHdr1));
+            } else if (lastHeader == 2) {
+                WinmmHook.waveInAddBuffer(hWaveIn, ref waveHdr2, Marshal.SizeOf(waveHdr2));
+            }
         }
 
         private void OnWimClose() {
