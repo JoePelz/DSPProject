@@ -106,7 +106,6 @@ namespace Comp3931_Project_JoePelz {
             WaveForm baby;
             baby = new WaveForm(this, wave);
             
-            //TODO: call parent.registerChild(this) from WaveForm, instead of having this code here
             children.Add(baby);
             activeChild = baby;
             baby.Show();

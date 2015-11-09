@@ -59,7 +59,6 @@ namespace Comp3931_Project_JoePelz {
                 }
                 result[t] /= (S.Length - t);
             }
-            //TODO: test this. Does it work?
             return result;
         }
 
@@ -93,12 +92,12 @@ namespace Comp3931_Project_JoePelz {
             return result;
         }
 
-        public static double[] MixSamples(double[] sampleA, double[] sampleB) {
+        public static double[] StereoToMono(ref double[] sampleA, ref double[] sampleB) {
             double[] result = new double[Math.Max(sampleA.Length, sampleB.Length)];
             long limit = Math.Min(sampleA.Length, sampleB.Length);
             long t;
             for (t = 0; t < limit; t++) {
-                result[t] = sampleA[t] + sampleB[t];
+                result[t] = (sampleA[t] + sampleB[t]) / 2;
             }
 
             if (t < sampleA.Length) {
@@ -108,14 +107,6 @@ namespace Comp3931_Project_JoePelz {
                 //copy rest of B
                 Array.Copy(sampleB, t, result, t, sampleB.Length - t);
             }
-
-            //If there's clipping, (sample > 1.0)
-            //divide by that value.
-            double max = maxAmplitude(result);
-            for (t = 0; t < result.Length; t++) {
-                result[t] /= max;
-            }
-
             return result;
         }
 

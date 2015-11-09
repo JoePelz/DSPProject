@@ -106,7 +106,7 @@ namespace Comp3931_Project_JoePelz {
             DFT = new Complex[wave.channels][];
             double[] samples = new double[fourierN];
 
-            //TODO: handle multiple channels. (currently grabs first channel only)
+            //This is for display, so it (intentionally) grabs the first channel only
             for (int i = 0; i < samples.Length; i++) {
                 samples[i] = 0;
             }
