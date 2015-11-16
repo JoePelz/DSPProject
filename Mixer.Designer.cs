@@ -151,7 +151,7 @@
             // menu_Fidel_Sample_11025
             // 
             this.menu_Fidel_Sample_11025.Name = "menu_Fidel_Sample_11025";
-            this.menu_Fidel_Sample_11025.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_Sample_11025.Size = new System.Drawing.Size(104, 22);
             this.menu_Fidel_Sample_11025.Tag = 11025;
             this.menu_Fidel_Sample_11025.Text = "11025";
             this.menu_Fidel_Sample_11025.Click += new System.EventHandler(this.menu_Fidel_Click);
@@ -159,7 +159,7 @@
             // menu_Fidel_Sample_22050
             // 
             this.menu_Fidel_Sample_22050.Name = "menu_Fidel_Sample_22050";
-            this.menu_Fidel_Sample_22050.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_Sample_22050.Size = new System.Drawing.Size(104, 22);
             this.menu_Fidel_Sample_22050.Tag = 22050;
             this.menu_Fidel_Sample_22050.Text = "22050";
             this.menu_Fidel_Sample_22050.Click += new System.EventHandler(this.menu_Fidel_Click);
@@ -167,7 +167,7 @@
             // menu_Fidel_Sample_44100
             // 
             this.menu_Fidel_Sample_44100.Name = "menu_Fidel_Sample_44100";
-            this.menu_Fidel_Sample_44100.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_Sample_44100.Size = new System.Drawing.Size(104, 22);
             this.menu_Fidel_Sample_44100.Tag = 44100;
             this.menu_Fidel_Sample_44100.Text = "44100";
             this.menu_Fidel_Sample_44100.Click += new System.EventHandler(this.menu_Fidel_Click);
@@ -175,7 +175,7 @@
             // menu_Fidel_Sample_88200
             // 
             this.menu_Fidel_Sample_88200.Name = "menu_Fidel_Sample_88200";
-            this.menu_Fidel_Sample_88200.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_Sample_88200.Size = new System.Drawing.Size(104, 22);
             this.menu_Fidel_Sample_88200.Tag = 88200;
             this.menu_Fidel_Sample_88200.Text = "88200";
             this.menu_Fidel_Sample_88200.Click += new System.EventHandler(this.menu_Fidel_Click);
@@ -194,7 +194,8 @@
             // menu_Fidel_Bits_8
             // 
             this.menu_Fidel_Bits_8.Name = "menu_Fidel_Bits_8";
-            this.menu_Fidel_Bits_8.Size = new System.Drawing.Size(86, 22);
+            this.menu_Fidel_Bits_8.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_Bits_8.Tag = 8;
             this.menu_Fidel_Bits_8.Text = "8";
             // 
             // menu_Fidel_Bits_16
@@ -202,19 +203,22 @@
             this.menu_Fidel_Bits_16.Checked = true;
             this.menu_Fidel_Bits_16.CheckState = System.Windows.Forms.CheckState.Checked;
             this.menu_Fidel_Bits_16.Name = "menu_Fidel_Bits_16";
-            this.menu_Fidel_Bits_16.Size = new System.Drawing.Size(86, 22);
+            this.menu_Fidel_Bits_16.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_Bits_16.Tag = 16;
             this.menu_Fidel_Bits_16.Text = "16";
             // 
             // menu_Fidel_Bits_24
             // 
             this.menu_Fidel_Bits_24.Name = "menu_Fidel_Bits_24";
-            this.menu_Fidel_Bits_24.Size = new System.Drawing.Size(86, 22);
+            this.menu_Fidel_Bits_24.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_Bits_24.Tag = 24;
             this.menu_Fidel_Bits_24.Text = "24";
             // 
             // menu_Fidel_Bits_32
             // 
             this.menu_Fidel_Bits_32.Name = "menu_Fidel_Bits_32";
-            this.menu_Fidel_Bits_32.Size = new System.Drawing.Size(86, 22);
+            this.menu_Fidel_Bits_32.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_Bits_32.Tag = 32;
             this.menu_Fidel_Bits_32.Text = "32";
             // 
             // fXToolStripMenuItem
@@ -259,7 +263,7 @@
             // btnNew
             // 
             this.btnNew.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnNew.Image = ((System.Drawing.Image)(resources.GetObject("btnNew.Image")));
+            this.btnNew.Image = Comp3931_Project_JoePelz.Properties.Resources.btnNew;
             this.btnNew.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnNew.Name = "btnNew";
             this.btnNew.Size = new System.Drawing.Size(52, 52);
@@ -269,7 +273,7 @@
             // btnSave
             // 
             this.btnSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnSave.Image = ((System.Drawing.Image)(resources.GetObject("btnSave.Image")));
+            this.btnSave.Image = Comp3931_Project_JoePelz.Properties.Resources.btnSave;
             this.btnSave.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(52, 52);
@@ -279,7 +283,7 @@
             // btnOpen
             // 
             this.btnOpen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnOpen.Image = ((System.Drawing.Image)(resources.GetObject("btnOpen.Image")));
+            this.btnOpen.Image = Comp3931_Project_JoePelz.Properties.Resources.btnOpen;
             this.btnOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnOpen.Name = "btnOpen";
             this.btnOpen.Size = new System.Drawing.Size(52, 52);
@@ -295,7 +299,7 @@
             // btnRecord
             // 
             this.btnRecord.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnRecord.Image = ((System.Drawing.Image)(resources.GetObject("btnRecord.Image")));
+            this.btnRecord.Image = Comp3931_Project_JoePelz.Properties.Resources.btnRecord;
             this.btnRecord.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnRecord.Name = "btnRecord";
             this.btnRecord.Size = new System.Drawing.Size(52, 52);
@@ -305,7 +309,7 @@
             // btnStop
             // 
             this.btnStop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnStop.Image = ((System.Drawing.Image)(resources.GetObject("btnStop.Image")));
+            this.btnStop.Image = Comp3931_Project_JoePelz.Properties.Resources.btnStop;
             this.btnStop.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(52, 52);
@@ -316,7 +320,8 @@
             // 
             this.btnPlay.AutoSize = false;
             this.btnPlay.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnPlay.Image = ((System.Drawing.Image)(resources.GetObject("btnPlay.Image")));
+            this.btnPlay.Image = Comp3931_Project_JoePelz.Properties.Resources.btnPlayDisabled;
+            this.btnPlay.Enabled = false;
             this.btnPlay.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnPlay.Name = "btnPlay";
             this.btnPlay.Size = new System.Drawing.Size(52, 52);

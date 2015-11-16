@@ -44,15 +44,21 @@ namespace Comp3931_Project_JoePelz {
         public void setActiveWindow(WaveForm child) {
             activeChild = child;
             updateWindowMenu();
+            updateFidelityMenu();
+            if (activeChild == null) {
+                playbackUpdate(PlaybackStatus.Disabled);
+            } else {
+                playbackUpdate(activeChild.State);
+            }
         }
 
         public void childDied(WaveForm child) {
             children.Remove(child);
             updateWindowMenu();
             if (children.Count == 1) {
-                activeChild = children[0];
+                setActiveWindow(children[0]);
             } else {
-                activeChild = null;
+                setActiveWindow(null);
             }
         }
 
@@ -72,14 +78,20 @@ namespace Comp3931_Project_JoePelz {
         private void focusChild(object sender, EventArgs e) {
             ToolStripMenuItem menuItem = (ToolStripMenuItem)sender;
             children[(int)menuItem.Tag].Focus();
-            updateFidelityMenu();
         }
 
         private void updateFidelityMenu() {
-            ToolStripMenuItem[] bitrates    = { menu_Fidel_Bits_8, menu_Fidel_Bits_16, menu_Fidel_Bits_24, menu_Fidel_Bits_32 };
+            ToolStripMenuItem[] bitRates    = { menu_Fidel_Bits_8, menu_Fidel_Bits_16, menu_Fidel_Bits_24, menu_Fidel_Bits_32 };
             ToolStripMenuItem[] sampleRates = { menu_Fidel_Sample_11025, menu_Fidel_Sample_22050, menu_Fidel_Sample_44100, menu_Fidel_Sample_88200 };
             foreach (ToolStripMenuItem item in sampleRates) {
-                if (activeChild.SampleRate == (int)item.Tag) {
+                if (activeChild != null && activeChild.SampleRate == (int)item.Tag) {
+                    item.Checked = true;
+                } else {
+                    item.Checked = false;
+                }
+            }
+            foreach (ToolStripMenuItem item in bitRates) {
+                if (activeChild != null && activeChild.BitDepth == (int)item.Tag) {
                     item.Checked = true;
                 } else {
                     item.Checked = false;
@@ -154,55 +166,56 @@ namespace Comp3931_Project_JoePelz {
             switch (update) {
                 case PlaybackStatus.Playing:
                     btnPlay.Enabled = true;
-                    btnPlay.Image = (System.Drawing.Image)(resources.GetObject("btnPause"));
+                    btnPlay.Image = Comp3931_Project_JoePelz.Properties.Resources.btnPause;
                     btnStop.Enabled = true;
+                    btnStop.Image = Comp3931_Project_JoePelz.Properties.Resources.btnStop;
                     btnRecord.Enabled = false;
-                    btnRecord.Image = (System.Drawing.Image)(resources.GetObject("btnRecordDisabled"));
+                    btnRecord.Image = Comp3931_Project_JoePelz.Properties.Resources.btnRecordDisabled;
                     btnNew.Enabled = false;
-                    btnNew.Image = (System.Drawing.Image)(resources.GetObject("btnNewDisabled"));
+                    btnNew.Image = Comp3931_Project_JoePelz.Properties.Resources.btnNewDisabled;
                     btnOpen.Enabled = false;
-                    btnOpen.Image = (System.Drawing.Image)(resources.GetObject("btnOpenDisabled"));
+                    btnOpen.Image = Comp3931_Project_JoePelz.Properties.Resources.btnOpenDisabled;
                     btnSave.Enabled = false;
-                    btnSave.Image = (System.Drawing.Image)(resources.GetObject("btnSaveDisabled"));
+                    btnSave.Image = Comp3931_Project_JoePelz.Properties.Resources.btnSaveDisabled;
                     break;
                 case PlaybackStatus.Paused:
-                    btnPlay.Image = (System.Drawing.Image)(resources.GetObject("btnPlay.Image"));
+                    btnPlay.Image = Comp3931_Project_JoePelz.Properties.Resources.btnPlay;
                     break;
                 case PlaybackStatus.Recording:
                     btnPlay.Enabled = false;
-                    btnPlay.Image = (System.Drawing.Image)(resources.GetObject("btnPlayDisabled"));
+                    btnPlay.Image = Comp3931_Project_JoePelz.Properties.Resources.btnPlayDisabled;
                     btnStop.Enabled = false;
-                    btnPlay.Image = (System.Drawing.Image)(resources.GetObject("btnStopDisabled"));
+                    btnStop.Image = Comp3931_Project_JoePelz.Properties.Resources.btnStopDisabled;
                     btnRecord.Enabled = true;
-                    btnRecord.Image = (System.Drawing.Image)(resources.GetObject("btnRecord.Image"));
+                    btnRecord.Image = Comp3931_Project_JoePelz.Properties.Resources.btnRecord;
                     btnNew.Enabled = false;
-                    btnNew.Image = (System.Drawing.Image)(resources.GetObject("btnNewDisabled"));
+                    btnNew.Image = Comp3931_Project_JoePelz.Properties.Resources.btnNewDisabled;
                     btnOpen.Enabled = false;
-                    btnOpen.Image = (System.Drawing.Image)(resources.GetObject("btnOpenDisabled"));
+                    btnOpen.Image = Comp3931_Project_JoePelz.Properties.Resources.btnOpenDisabled;
                     btnSave.Enabled = false;
-                    btnSave.Image = (System.Drawing.Image)(resources.GetObject("btnSaveDisabled"));
+                    btnSave.Image = Comp3931_Project_JoePelz.Properties.Resources.btnSaveDisabled;
                     break;
                 case PlaybackStatus.Stopped:
                     btnPlay.Enabled = true;
-                    btnPlay.Image = (System.Drawing.Image)(resources.GetObject("btnPlay.Image"));
+                    btnPlay.Image = Comp3931_Project_JoePelz.Properties.Resources.btnPlay;
                     btnStop.Enabled = true;
-                    btnStop.Image = (System.Drawing.Image)(resources.GetObject("btnStop.Image"));
+                    btnStop.Image = Comp3931_Project_JoePelz.Properties.Resources.btnStop;
                     btnRecord.Enabled = true;
-                    btnRecord.Image = (System.Drawing.Image)(resources.GetObject("btnRecord.Image"));
+                    btnRecord.Image = Comp3931_Project_JoePelz.Properties.Resources.btnRecord;
                     btnNew.Enabled = true;
-                    btnNew.Image = (System.Drawing.Image)(resources.GetObject("btnNew.Image"));
+                    btnNew.Image = Comp3931_Project_JoePelz.Properties.Resources.btnNew;
                     btnOpen.Enabled = true;
-                    btnOpen.Image = (System.Drawing.Image)(resources.GetObject("btnOpen.Image"));
+                    btnOpen.Image = Comp3931_Project_JoePelz.Properties.Resources.btnOpen;
                     btnSave.Enabled = true;
-                    btnSave.Image = (System.Drawing.Image)(resources.GetObject("btnSave.Image"));
+                    btnSave.Image = Comp3931_Project_JoePelz.Properties.Resources.btnSave;
                     break;
                 case PlaybackStatus.Disabled:
                     btnPlay.Enabled = false;
-                    btnPlay.Image = (System.Drawing.Image)(resources.GetObject("btnPlayDisabled"));
-                    btnStop.Enabled = false;
-                    btnStop.Image = (System.Drawing.Image)(resources.GetObject("btnStopDisabled"));
+                    btnPlay.Image = Comp3931_Project_JoePelz.Properties.Resources.btnPlayDisabled;
+                    btnStop.Enabled = true;
+                    btnStop.Image = Comp3931_Project_JoePelz.Properties.Resources.btnStop;
                     btnRecord.Enabled = true;
-                    btnRecord.Image = (System.Drawing.Image)(resources.GetObject("btnRecord.Image"));
+                    btnRecord.Image = Comp3931_Project_JoePelz.Properties.Resources.btnRecord;
                     break;
             }
         }

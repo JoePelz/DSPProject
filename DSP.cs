@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Comp3931_Project_JoePelz {
@@ -9,6 +10,30 @@ namespace Comp3931_Project_JoePelz {
     public enum DSP_FX { reverse }
     
     class DSP {
+        private static Complex[] DFTHelper(object args) {
+            //ref double[] samples, int startIndex, int stopIndex
+            Array argArray = new object[3];
+            argArray = (Array)args;
+            double[] samples = (double[])argArray.GetValue(0);
+            int low  = (int)argArray.GetValue(1);
+            int high = (int)argArray.GetValue(2);
+
+            int N = samples.Length;
+            Complex[] DFT = new Complex[N];
+            double re, im;
+
+            for (int f = low; f < high; f++) {
+                re = 0;
+                im = 0;
+                for (int t = 0; t < N; t++) {
+                    re += (samples[t]) * Math.Cos(2 * Math.PI * f * t / N);
+                    im -= (samples[t]) * Math.Sin(2 * Math.PI * f * t / N);
+                }
+                DFT[f] = new Complex(re, im);
+            }
+            return DFT;
+        }
+
         public static Complex[] DFT(ref double[] samples) {
             int N = samples.Length;
             Complex[] DFT = new Complex[N];

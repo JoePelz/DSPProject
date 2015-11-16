@@ -17,6 +17,7 @@ namespace Comp3931_Project_JoePelz {
         private WavePlayer player2;
         private Complex[][] DFT;
         private DSP_Window sampleWindowing = DSP_Window.pass;
+        private PlaybackStatus statusPlayback = PlaybackStatus.Stopped;
         private int fourierN = 882;
         private bool invalidPlayer = true;
         private int tSelStart;
@@ -81,6 +82,10 @@ namespace Comp3931_Project_JoePelz {
             get { return wave.bitDepth; }
         }
 
+        public PlaybackStatus State {
+            get { return statusPlayback; }
+        }
+
         public void wavePlayPause() {
             if (player2 == null) {
                 player2 = new WavePlayer(this);
@@ -107,6 +112,7 @@ namespace Comp3931_Project_JoePelz {
         }
 
         public void updatePlaybackStatus(PlaybackStatus update) {
+            statusPlayback = update;
             parent.playbackUpdate(update);
         }
 
