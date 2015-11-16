@@ -216,6 +216,12 @@ namespace Comp3931_Project_JoePelz {
                     btnStop.Image = Comp3931_Project_JoePelz.Properties.Resources.btnStop;
                     btnRecord.Enabled = true;
                     btnRecord.Image = Comp3931_Project_JoePelz.Properties.Resources.btnRecord;
+                    btnNew.Enabled = true;
+                    btnNew.Image = Comp3931_Project_JoePelz.Properties.Resources.btnNew;
+                    btnOpen.Enabled = true;
+                    btnOpen.Image = Comp3931_Project_JoePelz.Properties.Resources.btnOpen;
+                    btnSave.Enabled = true;
+                    btnSave.Image = Comp3931_Project_JoePelz.Properties.Resources.btnSave;
                     break;
             }
         }
@@ -256,7 +262,25 @@ namespace Comp3931_Project_JoePelz {
         }
 
         private void menu_Fidel_Click(object sender, EventArgs e) {
-
+            ToolStripMenuItem[] sampleRates = { menu_Fidel_Sample_11025, menu_Fidel_Sample_22050, menu_Fidel_Sample_44100, menu_Fidel_Sample_88200 };
+            int targetRate = (int)(((ToolStripMenuItem)sender).Tag);
+            if (targetRate > activeChild.SampleRate) {
+                DialogResult result = MessageBox.Show(String.Format("Are you sure you want to upsample {0} from {1}Hz to {2}Hz?", activeChild.Text, activeChild.SampleRate, targetRate), "Confirm Upsample",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button1);
+                if (result == DialogResult.Yes) {
+                    activeChild.changeSampleRate(targetRate);
+                }
+            } else if (targetRate < activeChild.SampleRate) {
+                DialogResult result = MessageBox.Show(String.Format("Are you sure you want to downsample {0} from {1}Hz to {2}Hz?", activeChild.Text, activeChild.SampleRate, targetRate), "Confirm Downsample",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button1);
+                if (result == DialogResult.Yes) {
+                    activeChild.changeSampleRate(targetRate);
+                }
+            } else {
+                MessageBox.Show("Sample is already at " + targetRate + "Hz!");
+            }
         }
     }
 }

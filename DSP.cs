@@ -117,6 +117,38 @@ namespace Comp3931_Project_JoePelz {
             return result;
         }
 
+        public static double[] dftFilter(double[] S, double[] filter) {
+            int N = filter.Length;
+            double[] result = new double[S.Length];
+
+            double[] sChunk = new double[N];
+            Complex[] fChunk;
+            int first;
+            first = 0;
+
+            while(first + N < S.Length) { 
+                //load sChunk
+                Array.Copy(S, first, sChunk, 0, N);
+                //calc fChunk
+                fChunk = DFT(ref sChunk);
+                //filter fChunk
+                for (int i = 0; i < N; i++) {
+                    if (filter[i] == 0) {
+                        fChunk[i].im = 0;
+                        fChunk[i].re = 0;
+                    }
+                }
+                //replace sChunk
+                sChunk = InverseDFT(ref fChunk);
+                //offload sChunk
+                Array.Copy(sChunk, 0, result, first, N);
+                first += N;
+            }
+
+
+            return result;
+        }
+
         public static double[] StereoToMono(ref double[] sampleA, ref double[] sampleB) {
             double[] result = new double[Math.Max(sampleA.Length, sampleB.Length)];
             long limit = Math.Min(sampleA.Length, sampleB.Length);
@@ -132,6 +164,61 @@ namespace Comp3931_Project_JoePelz {
                 //copy rest of B
                 Array.Copy(sampleB, t, result, t, sampleB.Length - t);
             }
+            return result;
+        }
+
+        public static double[] resample(ref double[] samples, int oldRate, int newRate) {
+            double[] extendedSamples, result;
+            int L, M;
+            if (newRate == oldRate) {
+                L = 1; M = 1;
+            } else if (newRate == 2 * oldRate) {
+                L = 2; M = 1;
+            } else if (newRate == 4 * oldRate) {
+                L = 4; M = 1;
+            } else if (newRate == 8 * oldRate) {
+                L = 8; M = 1;
+            } else if (newRate * 2 == oldRate) {
+                L = 1; M = 2;
+            } else if (newRate * 4 == oldRate) {
+                L = 1; M = 4;
+            } else if (newRate * 8 == oldRate) {
+                L = 1; M = 8;
+            } else {
+                return null;
+            }
+
+            //insert L-1 0s between each sample
+            extendedSamples = new double[samples.Length * L];
+            int i = 0;
+            for (int s = 0; s < samples.Length; s++) {
+                extendedSamples[i++] = samples[s];
+                for (int extra = 0; extra < L-1; extra++) {
+                    extendedSamples[i++ + extra] = 0;
+                }
+            }
+
+            //lowpass filter 
+            int S = Math.Min(oldRate, newRate);
+            int N = 3000;
+            double[] filter = new double[N];
+            int limit = N / 2;
+            for (int w = 0; w < filter.Length; w++) {
+                if (w < limit) {
+                    filter[w] = 1;
+                } else {
+                    filter[w] = 0;
+                }
+            }
+            extendedSamples = convolveFilter(extendedSamples, filter);
+
+            //select every Mth sample.
+            result = new double[extendedSamples.Length / M];
+            i = 0;
+            for (int s = 0; s < extendedSamples.Length; s+=M) {
+                result[i++] = extendedSamples[s];
+            }
+
             return result;
         }
 

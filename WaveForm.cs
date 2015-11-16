@@ -140,6 +140,7 @@ namespace Comp3931_Project_JoePelz {
             }
 
             DFT[0] = DSP.DFT(ref samples);
+            panelFourier.SampleRate = wave.sampleRate;
             panelFourier.Fourier = DFT;
             panelFourier.Invalidate();
         }
@@ -244,7 +245,8 @@ namespace Comp3931_Project_JoePelz {
             }
 
             for (int channel = 0; channel < wave.channels; channel++) {
-                wave.samples[channel] = DSP.convolveFilter(wave.samples[channel], filter);
+                //wave.samples[channel] = DSP.convolveFilter(wave.samples[channel], filter);
+                wave.samples[channel] = DSP.dftFilter(wave.samples[channel], filter);
             }
             panelWave.Invalidate();
             calculateDFT();
@@ -266,6 +268,22 @@ namespace Comp3931_Project_JoePelz {
             wave.pasteSelection(startIndex, data.samples);
             panelWave.Invalidate();
             invalidPlayer = true;
+        }
+
+        public void changeSampleRate(int newRate) {
+            if (newRate == wave.sampleRate) {
+                return;
+            }
+
+            Console.Write("before");
+            for (int channel = 0; channel < wave.channels; channel++) {
+                wave.samples[channel] = DSP.resample(ref wave.samples[channel], wave.sampleRate, newRate);
+            }
+            wave.sampleRate = newRate;
+            Console.Write("after");
+            updateStatusBar();
+            calculateDFT();
+            Invalidate();
         }
 
         public void WaveForm_Report(Object sender, ReportEventArgs e) {
