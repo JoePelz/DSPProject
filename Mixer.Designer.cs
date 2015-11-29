@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Mixer));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -48,8 +47,12 @@
             this.menu_Fidel_Bits_16 = new System.Windows.Forms.ToolStripMenuItem();
             this.menu_Fidel_Bits_24 = new System.Windows.Forms.ToolStripMenuItem();
             this.menu_Fidel_Bits_32 = new System.Windows.Forms.ToolStripMenuItem();
+            this.channelsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_Fidel_channels_mono = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_Fidel_channels_stereo = new System.Windows.Forms.ToolStripMenuItem();
             this.fXToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reverseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.maximizeAmplitudeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.windowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolBarMain = new System.Windows.Forms.ToolStrip();
             this.btnNew = new System.Windows.Forms.ToolStripButton();
@@ -61,6 +64,13 @@
             this.btnPlay = new System.Windows.Forms.ToolStripButton();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.pitchShiftToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_FX_ps_p3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_FX_ps_p2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_FX_ps_p1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_FX_ps_m1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_FX_ps_m2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_FX_ps_m3 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.toolBarMain.SuspendLayout();
             this.SuspendLayout();
@@ -132,7 +142,8 @@
             // 
             this.fidelityToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.changeSampleRateToolStripMenuItem,
-            this.changeBitRateToolStripMenuItem});
+            this.changeBitRateToolStripMenuItem,
+            this.channelsToolStripMenuItem});
             this.fidelityToolStripMenuItem.Name = "fidelityToolStripMenuItem";
             this.fidelityToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
             this.fidelityToolStripMenuItem.Text = "F&idelity";
@@ -197,15 +208,15 @@
             this.menu_Fidel_Bits_8.Size = new System.Drawing.Size(152, 22);
             this.menu_Fidel_Bits_8.Tag = 8;
             this.menu_Fidel_Bits_8.Text = "8";
+            this.menu_Fidel_Bits_8.Click += new System.EventHandler(this.menu_Fidel_Click);
             // 
             // menu_Fidel_Bits_16
             // 
-            this.menu_Fidel_Bits_16.Checked = true;
-            this.menu_Fidel_Bits_16.CheckState = System.Windows.Forms.CheckState.Checked;
             this.menu_Fidel_Bits_16.Name = "menu_Fidel_Bits_16";
             this.menu_Fidel_Bits_16.Size = new System.Drawing.Size(152, 22);
             this.menu_Fidel_Bits_16.Tag = 16;
             this.menu_Fidel_Bits_16.Text = "16";
+            this.menu_Fidel_Bits_16.Click += new System.EventHandler(this.menu_Fidel_Click);
             // 
             // menu_Fidel_Bits_24
             // 
@@ -213,6 +224,7 @@
             this.menu_Fidel_Bits_24.Size = new System.Drawing.Size(152, 22);
             this.menu_Fidel_Bits_24.Tag = 24;
             this.menu_Fidel_Bits_24.Text = "24";
+            this.menu_Fidel_Bits_24.Click += new System.EventHandler(this.menu_Fidel_Click);
             // 
             // menu_Fidel_Bits_32
             // 
@@ -220,11 +232,39 @@
             this.menu_Fidel_Bits_32.Size = new System.Drawing.Size(152, 22);
             this.menu_Fidel_Bits_32.Tag = 32;
             this.menu_Fidel_Bits_32.Text = "32";
+            this.menu_Fidel_Bits_32.Click += new System.EventHandler(this.menu_Fidel_Click);
+            // 
+            // channelsToolStripMenuItem
+            // 
+            this.channelsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menu_Fidel_channels_mono,
+            this.menu_Fidel_channels_stereo});
+            this.channelsToolStripMenuItem.Name = "channelsToolStripMenuItem";
+            this.channelsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.channelsToolStripMenuItem.Text = "Channels";
+            // 
+            // menu_Fidel_channels_mono
+            // 
+            this.menu_Fidel_channels_mono.Name = "menu_Fidel_channels_mono";
+            this.menu_Fidel_channels_mono.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_channels_mono.Tag = 1;
+            this.menu_Fidel_channels_mono.Text = "Mono";
+            this.menu_Fidel_channels_mono.Click += new System.EventHandler(this.menu_Fidel_Click);
+            // 
+            // menu_Fidel_channels_stereo
+            // 
+            this.menu_Fidel_channels_stereo.Name = "menu_Fidel_channels_stereo";
+            this.menu_Fidel_channels_stereo.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_channels_stereo.Tag = 2;
+            this.menu_Fidel_channels_stereo.Text = "Stereo";
+            this.menu_Fidel_channels_stereo.Click += new System.EventHandler(this.menu_Fidel_Click);
             // 
             // fXToolStripMenuItem
             // 
             this.fXToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.reverseToolStripMenuItem});
+            this.reverseToolStripMenuItem,
+            this.maximizeAmplitudeToolStripMenuItem,
+            this.pitchShiftToolStripMenuItem});
             this.fXToolStripMenuItem.Name = "fXToolStripMenuItem";
             this.fXToolStripMenuItem.Size = new System.Drawing.Size(32, 20);
             this.fXToolStripMenuItem.Text = "F&X";
@@ -232,9 +272,16 @@
             // reverseToolStripMenuItem
             // 
             this.reverseToolStripMenuItem.Name = "reverseToolStripMenuItem";
-            this.reverseToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            this.reverseToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
             this.reverseToolStripMenuItem.Text = "&Reverse";
             this.reverseToolStripMenuItem.Click += new System.EventHandler(this.reverseToolStripMenuItem_Click);
+            // 
+            // maximizeAmplitudeToolStripMenuItem
+            // 
+            this.maximizeAmplitudeToolStripMenuItem.Name = "maximizeAmplitudeToolStripMenuItem";
+            this.maximizeAmplitudeToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.maximizeAmplitudeToolStripMenuItem.Text = "Maximize Amplitude";
+            this.maximizeAmplitudeToolStripMenuItem.Click += new System.EventHandler(this.maximizeAmplitudeToolStripMenuItem_Click);
             // 
             // windowToolStripMenuItem
             // 
@@ -263,7 +310,7 @@
             // btnNew
             // 
             this.btnNew.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnNew.Image = Comp3931_Project_JoePelz.Properties.Resources.btnNew;
+            this.btnNew.Image = global::Comp3931_Project_JoePelz.Properties.Resources.btnNew;
             this.btnNew.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnNew.Name = "btnNew";
             this.btnNew.Size = new System.Drawing.Size(52, 52);
@@ -273,7 +320,7 @@
             // btnSave
             // 
             this.btnSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnSave.Image = Comp3931_Project_JoePelz.Properties.Resources.btnSave;
+            this.btnSave.Image = global::Comp3931_Project_JoePelz.Properties.Resources.btnSave;
             this.btnSave.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(52, 52);
@@ -283,7 +330,7 @@
             // btnOpen
             // 
             this.btnOpen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnOpen.Image = Comp3931_Project_JoePelz.Properties.Resources.btnOpen;
+            this.btnOpen.Image = global::Comp3931_Project_JoePelz.Properties.Resources.btnOpen;
             this.btnOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnOpen.Name = "btnOpen";
             this.btnOpen.Size = new System.Drawing.Size(52, 52);
@@ -299,7 +346,7 @@
             // btnRecord
             // 
             this.btnRecord.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnRecord.Image = Comp3931_Project_JoePelz.Properties.Resources.btnRecord;
+            this.btnRecord.Image = global::Comp3931_Project_JoePelz.Properties.Resources.btnRecord;
             this.btnRecord.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnRecord.Name = "btnRecord";
             this.btnRecord.Size = new System.Drawing.Size(52, 52);
@@ -309,7 +356,7 @@
             // btnStop
             // 
             this.btnStop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnStop.Image = Comp3931_Project_JoePelz.Properties.Resources.btnStop;
+            this.btnStop.Image = global::Comp3931_Project_JoePelz.Properties.Resources.btnStop;
             this.btnStop.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(52, 52);
@@ -320,8 +367,8 @@
             // 
             this.btnPlay.AutoSize = false;
             this.btnPlay.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnPlay.Image = Comp3931_Project_JoePelz.Properties.Resources.btnPlayDisabled;
             this.btnPlay.Enabled = false;
+            this.btnPlay.Image = global::Comp3931_Project_JoePelz.Properties.Resources.btnPlayDisabled;
             this.btnPlay.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnPlay.Name = "btnPlay";
             this.btnPlay.Size = new System.Drawing.Size(52, 52);
@@ -340,6 +387,67 @@
             this.saveFileDialog1.DefaultExt = "wav";
             this.saveFileDialog1.Filter = "Wave Files|*.wav|All files|*.*";
             this.saveFileDialog1.InitialDirectory = "Documents";
+            // 
+            // pitchShiftToolStripMenuItem
+            // 
+            this.pitchShiftToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menu_FX_ps_p3,
+            this.menu_FX_ps_p2,
+            this.menu_FX_ps_p1,
+            this.menu_FX_ps_m1,
+            this.menu_FX_ps_m2,
+            this.menu_FX_ps_m3});
+            this.pitchShiftToolStripMenuItem.Name = "pitchShiftToolStripMenuItem";
+            this.pitchShiftToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.pitchShiftToolStripMenuItem.Text = "Pitch-Shift";
+            // 
+            // menu_FX_ps_p3
+            // 
+            this.menu_FX_ps_p3.Name = "menu_FX_ps_p3";
+            this.menu_FX_ps_p3.Size = new System.Drawing.Size(152, 22);
+            this.menu_FX_ps_p3.Tag = 3;
+            this.menu_FX_ps_p3.Text = "+3";
+            this.menu_FX_ps_p3.Click += new System.EventHandler(this.PitchShift);
+            // 
+            // menu_FX_ps_p2
+            // 
+            this.menu_FX_ps_p2.Name = "menu_FX_ps_p2";
+            this.menu_FX_ps_p2.Size = new System.Drawing.Size(152, 22);
+            this.menu_FX_ps_p2.Tag = 2;
+            this.menu_FX_ps_p2.Text = "+2";
+            this.menu_FX_ps_p2.Click += new System.EventHandler(this.PitchShift);
+            // 
+            // menu_FX_ps_p1
+            // 
+            this.menu_FX_ps_p1.Name = "menu_FX_ps_p1";
+            this.menu_FX_ps_p1.Size = new System.Drawing.Size(152, 22);
+            this.menu_FX_ps_p1.Tag = 1;
+            this.menu_FX_ps_p1.Text = "+1";
+            this.menu_FX_ps_p1.Click += new System.EventHandler(this.PitchShift);
+            // 
+            // menu_FX_ps_m1
+            // 
+            this.menu_FX_ps_m1.Name = "menu_FX_ps_m1";
+            this.menu_FX_ps_m1.Size = new System.Drawing.Size(152, 22);
+            this.menu_FX_ps_m1.Tag = -1;
+            this.menu_FX_ps_m1.Text = "-1";
+            this.menu_FX_ps_m1.Click += new System.EventHandler(this.PitchShift);
+            // 
+            // menu_FX_ps_m2
+            // 
+            this.menu_FX_ps_m2.Name = "menu_FX_ps_m2";
+            this.menu_FX_ps_m2.Size = new System.Drawing.Size(152, 22);
+            this.menu_FX_ps_m2.Tag = -2;
+            this.menu_FX_ps_m2.Text = "-2";
+            this.menu_FX_ps_m2.Click += new System.EventHandler(this.PitchShift);
+            // 
+            // menu_FX_ps_m3
+            // 
+            this.menu_FX_ps_m3.Name = "menu_FX_ps_m3";
+            this.menu_FX_ps_m3.Size = new System.Drawing.Size(152, 22);
+            this.menu_FX_ps_m3.Tag = -3;
+            this.menu_FX_ps_m3.Text = "-3";
+            this.menu_FX_ps_m3.Click += new System.EventHandler(this.PitchShift);
             // 
             // Mixer
             // 
@@ -394,5 +502,16 @@
         private System.Windows.Forms.ToolStripButton btnPlay;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
+        private System.Windows.Forms.ToolStripMenuItem maximizeAmplitudeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem channelsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem menu_Fidel_channels_mono;
+        private System.Windows.Forms.ToolStripMenuItem menu_Fidel_channels_stereo;
+        private System.Windows.Forms.ToolStripMenuItem pitchShiftToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem menu_FX_ps_p3;
+        private System.Windows.Forms.ToolStripMenuItem menu_FX_ps_p2;
+        private System.Windows.Forms.ToolStripMenuItem menu_FX_ps_p1;
+        private System.Windows.Forms.ToolStripMenuItem menu_FX_ps_m1;
+        private System.Windows.Forms.ToolStripMenuItem menu_FX_ps_m2;
+        private System.Windows.Forms.ToolStripMenuItem menu_FX_ps_m3;
     }
 }

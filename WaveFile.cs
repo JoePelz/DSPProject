@@ -317,42 +317,70 @@ namespace Comp3931_Project_JoePelz {
                 for (int t = 0; t < sampleRate; t++) {
                     samples[c][t] = 0;
 
-                    // Assignment 2, question 4
-                    /*
-                    samples[c][t] += 2 * Math.Cos(2 * Math.PI *  3 * t / 10);
-                    samples[c][t] += 3 * Math.Sin(2 * Math.PI * 14 * t / 10);
-                    */
-
-                    // Assignment 2, question 3
-                    /*
-                    A = 1.0; f = 3; phase = Math.PI / 4;
-                    samples[c][t] += A * Math.Cos(Math.PI * 2 * f * t / sampleRate + phase);
-
-                    A = 1.5; f = 6; phase = Math.PI / 3;
-                    samples[c][t] += A * Math.Cos(Math.PI * 2 * f * t / sampleRate + phase);
-                    /**/
-
-                    /*
-                    A = 1.25; f = 25; phase = 0;
-                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
-                    A = 1.25; f = 75; phase = 0;
-                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
-                    */
-                    
-                    A = 1.0; f = 250; phase = 0;
-                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
-                    
-                    A = 0.75; f = 600; phase = 0;
+                    A = 0.5; f = 1000; phase = 0;
                     samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
 
-                    A = 0.5; f = 800; phase = 0;
+                    A = 0.5; f = 2000; phase = 0;
                     samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
 
-                    A = 0.25; f = 1600; phase = 0;
+                    A = 0.5; f = 3000; phase = 0;
                     samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
-                    /**/
-                    samples[c][t] = samples[c][t]
-                        / 2.5;  //divide by total amplitude (new range: -1.0..1.0)
+
+                    A = 0.5; f = 4000; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+
+                    A = 0.5; f = 5000; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+
+                    A = 0.5; f = 6000; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+
+                    A = 0.5; f = 7000; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+
+                    A = 0.5; f = 8000; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+
+                    A = 0.5; f = 9000; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+
+                    A = 0.5; f = 10000; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+
+                    A = 0.5; f = 11000; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+
+                    A = 0.5; f = 12000; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+
+                    A = 0.5; f = 13000; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+
+                    A = 0.5; f = 14000; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+
+                    A = 0.5; f = 15000; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+
+                    A = 0.5; f = 16000; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+
+                    A = 0.5; f = 17000; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+
+                    A = 0.5; f = 18000; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+
+                    A = 0.5; f = 19000; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+
+                    A = 0.5; f = 20000; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+
+                    A = 0.5; f = 21000; phase = 0;
+                    samples[c][t] += A * Math.Sin(Math.PI * 2 * f * t / sampleRate + phase);
+
+                    samples[c][t] = samples[c][t] / 9.5;  //divide by total amplitude (new range: -1.0..1.0)
                 }
             }
         }
@@ -492,10 +520,9 @@ namespace Comp3931_Project_JoePelz {
             for (int i = 0; i < channels; i++) {
                 duplicate[i] = new double[end - start];
             }
+
             for (int channel = 0; channel < channels; channel++) {
-                for (int i = start; i < end; i++) {
-                    duplicate[channel][i - start] = samples[channel][i];
-                }
+                Array.Copy(samples[channel], start, duplicate[channel], 0, end - start);
             }
 
             WaveFile copy = new WaveFile(bitDepth, channels, sampleRate);

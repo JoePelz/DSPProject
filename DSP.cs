@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Comp3931_Project_JoePelz {
     public enum DSP_Window { pass, triangle, cosine, blackman }
-    public enum DSP_FX { reverse }
+    public enum DSP_FX { reverse, normalize, pitchshift }
     
     class DSP {
         private static Complex[] DFTHelper(object args) {
@@ -117,6 +117,93 @@ namespace Comp3931_Project_JoePelz {
             return result;
         }
 
+        public static double[] IIRFilter(double[] S, double zeroFreq, double highFreq, double mode, double samplingRate) {
+            double[] a = new double[2];
+            double[] b = new double[3];
+
+            //Using a biquad filter equation
+
+            Complex z1 = Complex.fromMagAngle(1, zeroFreq / samplingRate * Math.PI * 2);
+            Complex z2 = Complex.fromMagAngle(1, -zeroFreq / samplingRate * Math.PI * 2);
+            //Complex p1 = new Complex(+0, +0.66);
+            //Complex p2 = new Complex(-0, -0.66);
+            Complex p1 = Complex.fromMagAngle(0.66, highFreq / samplingRate * Math.PI * 2);
+            Complex p2 = Complex.fromMagAngle(0.66, -highFreq / samplingRate * Math.PI * 2);
+
+            b[0] = 1;
+            b[1] = -z1.re - z2.re;
+            b[2] = z1.re * z2.re - z1.im * z2.im;
+
+            a[0] = -p1.re - p2.re;
+            a[1] = p1.re * p2.re - p1.im * p2.im;
+
+            //reference frequency
+            double Zr = 0; // reference frequency
+            double Wr = 0; // reference angle
+            if (mode == 0) {
+                Zr = 0; //low pass
+                Wr = 0;
+            } else if (mode == 1) {
+                Zr = samplingRate / 2;
+                Wr = Math.PI;
+            } else {
+                Zr = mode; //high pass
+                Wr = Zr / samplingRate * Math.PI * 2;
+            }
+            //reference frequency as angle
+
+            //scale factor
+            double c = 1;
+            if (mode == 0) {
+                //lowpass can be simplified for calculating c
+                c = (1 + a[0] + a[1]) / (1 + b[1] + b[2]);
+            } else if (mode == 1) {
+                //highpass can also be simplified for calculating c
+                c = (1 - a[0] + a[1]) / (1 - b[1] + b[2]);
+            } else {
+                c = Math.Sqrt(
+                    (Math.Pow(1 + a[0] * Math.Cos(Wr) + a[1] * Math.Cos(2 * Wr), 2) + Math.Pow(a[0] * Math.Sin(Wr) + a[1] * Math.Sin(2 * Wr), 2))
+                    /
+                    (Math.Pow(1 + b[1] * Math.Cos(Wr) + b[2] * Math.Cos(2 * Wr), 2) + Math.Pow(b[1] * Math.Sin(Wr) + b[2] * Math.Sin(2 * Wr), 2))
+                );
+            }
+            
+            b[0] = c;
+            b[1] = c * (-z1.re - z2.re);
+            b[2] = c * (z1.re * z2.re - z1.im * z2.im);
+
+            a[0] = -p1.re - p2.re;
+            a[1] = p1.re * p2.re - p1.im * p2.im;
+            
+            return processIIRFilter(S, a, b);
+        }
+
+
+        private static double[] processIIRFilter(double[] S, double[] a, double[] b) {
+            double[] result = new double[S.Length];
+
+            int shortest = Math.Min(a.Length, b.Length);
+            int n = 0;
+            //skip the first few so that we don't go out of bounds.
+            //They're unlikely to make a difference anyway.
+            for (; n < shortest; n++) {
+                result[n] = S[n];
+            }
+
+            for (; n < S.Length; n++) {
+                result[n] = 0;
+                for (int i = 0; i < b.Length; i++) {
+                    result[n] += S[n - i] * b[i];
+                }
+                for (int i = 0; i < a.Length; i++) {
+                    result[n] -= result[n - 1 - i] * a[i];
+                }
+            }
+
+            return result;
+        }
+
+
         public static double[] dftFilter(double[] S, double[] filter) {
             int N = filter.Length;
             double[] result = new double[S.Length];
@@ -149,6 +236,26 @@ namespace Comp3931_Project_JoePelz {
             return result;
         }
 
+        public static double[][] matchChannels(double[][] samples, short newChannels) {
+            if (samples.Length == newChannels) {
+                return samples;
+            }
+            double[] data = samples[0];
+
+            //downmix to 1 channel
+            for (int i = 0; i < samples.Length; i++) {
+                data = StereoToMono(ref samples[i], ref data);
+            }
+
+            //duplicate channel to every other channel.
+            samples = new double[newChannels][];
+            for (int channel = 0; channel < newChannels; channel++) {
+                samples[channel] = data;
+            }
+
+            return samples;
+        }
+
         public static double[] StereoToMono(ref double[] sampleA, ref double[] sampleB) {
             double[] result = new double[Math.Max(sampleA.Length, sampleB.Length)];
             long limit = Math.Min(sampleA.Length, sampleB.Length);
@@ -171,7 +278,7 @@ namespace Comp3931_Project_JoePelz {
             double[] extendedSamples, result;
             int L, M;
             if (newRate == oldRate) {
-                L = 1; M = 1;
+                return samples;
             } else if (newRate == 2 * oldRate) {
                 L = 2; M = 1;
             } else if (newRate == 4 * oldRate) {
@@ -200,17 +307,8 @@ namespace Comp3931_Project_JoePelz {
 
             //lowpass filter 
             int S = Math.Min(oldRate, newRate);
-            int N = 3000;
-            double[] filter = new double[N];
-            int limit = N / 2;
-            for (int w = 0; w < filter.Length; w++) {
-                if (w < limit) {
-                    filter[w] = 1;
-                } else {
-                    filter[w] = 0;
-                }
-            }
-            extendedSamples = convolveFilter(extendedSamples, filter);
+            extendedSamples = DSP.IIRFilter(extendedSamples, S/2 + 5000, S/2 - 5000, 0, S*2);
+
 
             //select every Mth sample.
             result = new double[extendedSamples.Length / M];
@@ -222,9 +320,38 @@ namespace Comp3931_Project_JoePelz {
             return result;
         }
 
-        /* Returns the highest amplitude found in the sample set. 
-           Value is + or - accordingly.
-        */
+        public static double[] pitchShift(ref double[] samples, int sampleRate, int semitones) {
+            double[] extendedSamples, result;
+            double freqRatio = Math.Pow(2, (double)semitones / 12.0);
+            Fraction frac = new Fraction(freqRatio);
+            int M = frac.num;
+            int L = frac.denom;
+
+            //insert L-1 0s between each sample
+            extendedSamples = new double[samples.Length * L];
+            int i = 0;
+            for (int s = 0; s < samples.Length; s++) {
+                extendedSamples[i] = samples[s];
+                for (int extra = 1; extra <= L - 1; extra++) {
+                    extendedSamples[i + extra] = extendedSamples[i + extra - 1];
+                }
+                i += L;
+            }
+
+            //select every Mth sample.
+            result = new double[(int)Math.Ceiling(extendedSamples.Length / (double)M)];
+            i = 0;
+            for (int s = 0; s < extendedSamples.Length; s += M) {
+                result[i++] = extendedSamples[s];
+            }
+
+            return result;
+        }
+
+
+        // Returns the highest amplitude found in the sample set. 
+        // Value is + or - accordingly.
+
         private static double maxAmplitude(double[] samples) {
             double max = 0;
             for (int t = 0; t < samples.Length; t++) {
@@ -280,11 +407,25 @@ namespace Comp3931_Project_JoePelz {
             }
         }
 
-        public static void ApplyFX(DSP_FX effect, ref WaveFile data) {
+        public static void ApplyFX(DSP_FX effect, object[] args, ref WaveFile data) {
+            double factor;
             switch (effect) {
                 case DSP_FX.reverse:
                     for (int channel = 0; channel < data.channels; channel++) {
                         Array.Reverse(data.samples[channel]);
+                    }
+                    break;
+                case DSP_FX.normalize:
+                    for (int channel = 0; channel < data.channels; channel++) {
+                        factor = maxAmplitude(data.samples[channel]) * 1.1;
+                        for (int sample = 0; sample < data.samples[channel].Length; sample++) {
+                            data.samples[channel][sample] = data.samples[channel][sample] / factor;
+                        }
+                    }
+                    break;
+                case DSP_FX.pitchshift:
+                    for (int channel = 0; channel < data.channels; channel++) {
+                        data.samples[channel] = pitchShift(ref data.samples[channel], data.sampleRate, (int)args[0]);
                     }
                     break;
                 default:

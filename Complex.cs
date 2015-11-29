@@ -13,12 +13,22 @@ namespace Comp3931_Project_JoePelz {
             im = imaginary;
         }
 
+        public static Complex fromMagAngle(double magnitude, double angle) {
+            return new Complex(magnitude * Math.Cos(angle), magnitude * Math.Sin(angle));
+        }
+
         public double magnitude() {
             return Math.Sqrt(re * re + im * im);
         }
 
         public double angle() {
             return Math.Atan2(im, re);
+        }
+
+        public void normalize() {
+            double length = magnitude();
+            re /= length;
+            im /= length;
         }
     }
 }

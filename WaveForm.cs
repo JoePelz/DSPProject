@@ -82,6 +82,10 @@ namespace Comp3931_Project_JoePelz {
             get { return wave.bitDepth; }
         }
 
+        public int Channels {
+            get { return wave.channels; }
+        }
+
         public PlaybackStatus State {
             get { return statusPlayback; }
         }
@@ -108,7 +112,9 @@ namespace Comp3931_Project_JoePelz {
         }
 
         public void waveStop() {
-            player2.PlaybackStop();
+            if (player2 != null) {
+                player2.PlaybackStop();
+            }
         }
 
         public void updatePlaybackStatus(PlaybackStatus update) {
@@ -162,6 +168,7 @@ namespace Comp3931_Project_JoePelz {
             calculateDFT();
             panelFourier.Invalidate();
             updateStatusBar();
+            waveStop();
             invalidPlayer = true;
         }
 
@@ -212,6 +219,8 @@ namespace Comp3931_Project_JoePelz {
             int after = wave.getNumSamples();
             panelWave.SelectionEnd = tSelStart;
             panelWave.setSamples(wave.samples);
+            waveStop();
+            invalidPlayer = true;
         }
 
         public void pasteAtSelection() {
@@ -224,14 +233,26 @@ namespace Comp3931_Project_JoePelz {
                 MessageBox.Show("Error reading clipboard.");
                 return;
             }
+            //match number of channels
+            data.samples = DSP.matchChannels(data.samples, wave.channels);
+            data.channels = wave.channels;
+
+            //match sampling rate
+            for (int channel = 0; channel < data.channels; channel++) {
+                data.samples[channel] = DSP.resample(ref data.samples[channel], data.sampleRate, wave.sampleRate);
+                data.sampleRate = wave.sampleRate;
+            }
+
             wave.cutSelection(tSelStart, tSelEnd);
             wave.pasteSelection(tSelStart, data);
             updateReport(data.getNumSamples() + " samples pasted from the clipboard!");
             panelWave.SelectionEnd = tSelStart + data.getNumSamples();
             panelWave.setSamples(wave.samples);
+            waveStop();
+            invalidPlayer = true;
         }
 
-        public void filterSelectedFrequencies() {
+        public void filterSelectedFrequencies(int method = 0) {
             if (fSelStart == fSelEnd)
                 return;
             
@@ -243,18 +264,38 @@ namespace Comp3931_Project_JoePelz {
                     filter[fbin] = 1;
                 }
             }
+            
+            double criticalPoint = 0;
+            criticalPoint = fSelStart * SampleRate / fourierN;
 
             for (int channel = 0; channel < wave.channels; channel++) {
-                //wave.samples[channel] = DSP.convolveFilter(wave.samples[channel], filter);
-                wave.samples[channel] = DSP.dftFilter(wave.samples[channel], filter);
+                switch (method) {
+                    case 0:
+                        wave.samples[channel] = DSP.convolveFilter(wave.samples[channel], filter);
+                        break;
+                    case 1:
+                        wave.samples[channel] = DSP.dftFilter(wave.samples[channel], filter);
+                        break;
+                    case 2: //low pass
+                        // LowPass IIRFilter  ( samples, 1x freq, 0x freq, 0, SampleRate );
+                        wave.samples[channel] = DSP.IIRFilter(wave.samples[channel], Math.Min(criticalPoint + 5000, SampleRate / 2), Math.Max(0, criticalPoint - 5000), 0, SampleRate);
+                        break;
+                    case 3: //high pass
+                        // HighPass IIRFilter  ( samples, 0x freq, 1x freq, 1, SampleRate );
+                        wave.samples[channel] = DSP.IIRFilter(wave.samples[channel], Math.Max(0, criticalPoint - 5000), Math.Min(criticalPoint + 5000, SampleRate/2), 1, SampleRate);
+                        break;
+                    default:
+                        MessageBox.Show("something went wrong.");
+                        break;
+                }
             }
+            panelWave.setSamples(wave.samples);
             panelWave.Invalidate();
             calculateDFT();
-            panelFourier.Invalidate();
             invalidPlayer = true;
         }
 
-        public void applyFX(DSP_FX effect) {
+        public void applyFX(DSP_FX effect, object[] args) {
             int startIndex = Math.Max(tSelStart, 0);
             int endIndex;
             if (tSelEnd != tSelStart) {
@@ -264,8 +305,9 @@ namespace Comp3931_Project_JoePelz {
             }
 
             WaveFile data = wave.cutSelection(startIndex, endIndex);
-            DSP.ApplyFX(effect, ref data);
+            DSP.ApplyFX(effect, args, ref data);
             wave.pasteSelection(startIndex, data.samples);
+            panelWave.setSamples(wave.samples);
             panelWave.Invalidate();
             invalidPlayer = true;
         }
@@ -274,16 +316,28 @@ namespace Comp3931_Project_JoePelz {
             if (newRate == wave.sampleRate) {
                 return;
             }
-
-            Console.Write("before");
+            
             for (int channel = 0; channel < wave.channels; channel++) {
                 wave.samples[channel] = DSP.resample(ref wave.samples[channel], wave.sampleRate, newRate);
             }
             wave.sampleRate = newRate;
-            Console.Write("after");
             updateStatusBar();
             calculateDFT();
-            Invalidate();
+            panelWave.setSamples(wave.samples);
+            panelWave.Invalidate();
+        }
+
+        public void changeBitRate(short newBitDepth) {
+            wave.bitDepth = newBitDepth;
+            updateStatusBar();
+        }
+
+        public void changeChannels(short nChannels) {
+            wave.samples = DSP.matchChannels(wave.samples, nChannels);
+            wave.channels = nChannels;
+            updateStatusBar();
+            panelWave.setSamples(wave.samples);
+            panelWave.Invalidate();
         }
 
         public void WaveForm_Report(Object sender, ReportEventArgs e) {
@@ -308,6 +362,22 @@ namespace Comp3931_Project_JoePelz {
         private void blackmanToolStripMenuItem_Click(object sender, EventArgs e) {
             sampleWindowing = DSP_Window.blackman;
             calculateDFT();
+        }
+
+        private void convolutionFilterToolStripMenuItem_Click(object sender, EventArgs e) {
+            filterSelectedFrequencies(0);
+        }
+
+        private void dFTFilteringToolStripMenuItem_Click(object sender, EventArgs e) {
+            filterSelectedFrequencies(1);
+        }
+
+        private void iIRLowpassToolStripMenuItem_Click(object sender, EventArgs e) {
+            filterSelectedFrequencies(2);
+        }
+
+        private void iIRHighpassToolStripMenuItem_Click(object sender, EventArgs e) {
+            filterSelectedFrequencies(3);
         }
     }
 

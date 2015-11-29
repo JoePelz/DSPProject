@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             this.splitter1 = new System.Windows.Forms.Splitter();
-            this.panelFourier = new Comp3931_Project_JoePelz.FourierPanel();
+            this.panelFourier = new Comp3931_Project_JoePelz.FourierPanel(this.components);
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.windowingModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.passthroughToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -44,6 +44,11 @@
             this.statusSelection = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusReport = new System.Windows.Forms.ToolStripStatusLabel();
             this.panelWave = new Comp3931_Project_JoePelz.WavePanel();
+            this.filterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.convolutionFilterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dFTFilteringToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.iIRLowpassToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.iIRHighpassToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panelFourier.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
             this.statusBar.SuspendLayout();
@@ -67,17 +72,20 @@
             this.panelFourier.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelFourier.Location = new System.Drawing.Point(0, 163);
             this.panelFourier.Name = "panelFourier";
+            this.panelFourier.SelectionEnd = 0;
+            this.panelFourier.SelectionStart = 0;
             this.panelFourier.Size = new System.Drawing.Size(1000, 98);
             this.panelFourier.TabIndex = 3;
-            this.panelFourier.SelChanged += new FreqSelChangedEventHandler(this.updateFreqSel);
-            this.panelFourier.Report += new ReportEventHandler(this.WaveForm_Report);
+            this.panelFourier.SelChanged += new Comp3931_Project_JoePelz.FreqSelChangedEventHandler(this.updateFreqSel);
+            this.panelFourier.Report += new Comp3931_Project_JoePelz.ReportEventHandler(this.WaveForm_Report);
             // 
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.windowingModeToolStripMenuItem});
+            this.windowingModeToolStripMenuItem,
+            this.filterToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(170, 26);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(170, 48);
             // 
             // windowingModeToolStripMenuItem
             // 
@@ -189,9 +197,50 @@
             this.panelWave.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelWave.Location = new System.Drawing.Point(0, 0);
             this.panelWave.Name = "panelWave";
+            this.panelWave.SelectionEnd = 0;
+            this.panelWave.SelectionStart = 0;
             this.panelWave.Size = new System.Drawing.Size(1000, 160);
             this.panelWave.TabIndex = 1;
-            this.panelWave.SelChanged += new TimeSelChangedEventHandler(this.updateSelection);
+            this.panelWave.SelChanged += new Comp3931_Project_JoePelz.TimeSelChangedEventHandler(this.updateSelection);
+            // 
+            // filterToolStripMenuItem
+            // 
+            this.filterToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.convolutionFilterToolStripMenuItem,
+            this.dFTFilteringToolStripMenuItem,
+            this.iIRLowpassToolStripMenuItem,
+            this.iIRHighpassToolStripMenuItem});
+            this.filterToolStripMenuItem.Name = "filterToolStripMenuItem";
+            this.filterToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.filterToolStripMenuItem.Text = "Filter";
+            // 
+            // convolutionFilterToolStripMenuItem
+            // 
+            this.convolutionFilterToolStripMenuItem.Name = "convolutionFilterToolStripMenuItem";
+            this.convolutionFilterToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.convolutionFilterToolStripMenuItem.Text = "Convolution Filter";
+            this.convolutionFilterToolStripMenuItem.Click += new System.EventHandler(this.convolutionFilterToolStripMenuItem_Click);
+            // 
+            // dFTFilteringToolStripMenuItem
+            // 
+            this.dFTFilteringToolStripMenuItem.Name = "dFTFilteringToolStripMenuItem";
+            this.dFTFilteringToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.dFTFilteringToolStripMenuItem.Text = "DFT Filter";
+            this.dFTFilteringToolStripMenuItem.Click += new System.EventHandler(this.dFTFilteringToolStripMenuItem_Click);
+            // 
+            // iIRLowpassToolStripMenuItem
+            // 
+            this.iIRLowpassToolStripMenuItem.Name = "iIRLowpassToolStripMenuItem";
+            this.iIRLowpassToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.iIRLowpassToolStripMenuItem.Text = "IIR Lowpass";
+            this.iIRLowpassToolStripMenuItem.Click += new System.EventHandler(this.iIRLowpassToolStripMenuItem_Click);
+            // 
+            // iIRHighpassToolStripMenuItem
+            // 
+            this.iIRHighpassToolStripMenuItem.Name = "iIRHighpassToolStripMenuItem";
+            this.iIRHighpassToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.iIRHighpassToolStripMenuItem.Text = "IIR Highpass";
+            this.iIRHighpassToolStripMenuItem.Click += new System.EventHandler(this.iIRHighpassToolStripMenuItem_Click);
             // 
             // WaveForm
             // 
@@ -230,6 +279,11 @@
         private System.Windows.Forms.ToolStripMenuItem blackmanToolStripMenuItem;
         private Comp3931_Project_JoePelz.WavePanel panelWave;
         private Comp3931_Project_JoePelz.FourierPanel panelFourier;
+        private System.Windows.Forms.ToolStripMenuItem filterToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem convolutionFilterToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem dFTFilteringToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem iIRLowpassToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem iIRHighpassToolStripMenuItem;
     }
 }
 

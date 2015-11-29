@@ -83,6 +83,7 @@ namespace Comp3931_Project_JoePelz {
         private void updateFidelityMenu() {
             ToolStripMenuItem[] bitRates    = { menu_Fidel_Bits_8, menu_Fidel_Bits_16, menu_Fidel_Bits_24, menu_Fidel_Bits_32 };
             ToolStripMenuItem[] sampleRates = { menu_Fidel_Sample_11025, menu_Fidel_Sample_22050, menu_Fidel_Sample_44100, menu_Fidel_Sample_88200 };
+            ToolStripMenuItem[] channels    = { menu_Fidel_channels_mono, menu_Fidel_channels_stereo };
             foreach (ToolStripMenuItem item in sampleRates) {
                 if (activeChild != null && activeChild.SampleRate == (int)item.Tag) {
                     item.Checked = true;
@@ -92,6 +93,13 @@ namespace Comp3931_Project_JoePelz {
             }
             foreach (ToolStripMenuItem item in bitRates) {
                 if (activeChild != null && activeChild.BitDepth == (int)item.Tag) {
+                    item.Checked = true;
+                } else {
+                    item.Checked = false;
+                }
+            }
+            foreach (ToolStripMenuItem item in channels) {
+                if (activeChild != null && activeChild.Channels == (int)item.Tag) {
                     item.Checked = true;
                 } else {
                     item.Checked = false;
@@ -255,31 +263,75 @@ namespace Comp3931_Project_JoePelz {
 
         private void reverseToolStripMenuItem_Click(object sender, EventArgs e) {
             if (activeChild == null) {
-                MessageBox.Show("No sample to reverse!");
                 return;
             }
-            activeChild.applyFX(DSP_FX.reverse);
+            activeChild.applyFX(DSP_FX.reverse, null);
         }
 
         private void menu_Fidel_Click(object sender, EventArgs e) {
             ToolStripMenuItem[] sampleRates = { menu_Fidel_Sample_11025, menu_Fidel_Sample_22050, menu_Fidel_Sample_44100, menu_Fidel_Sample_88200 };
-            int targetRate = (int)(((ToolStripMenuItem)sender).Tag);
-            if (targetRate > activeChild.SampleRate) {
-                DialogResult result = MessageBox.Show(String.Format("Are you sure you want to upsample {0} from {1}Hz to {2}Hz?", activeChild.Text, activeChild.SampleRate, targetRate), "Confirm Upsample",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                    MessageBoxDefaultButton.Button1);
-                if (result == DialogResult.Yes) {
-                    activeChild.changeSampleRate(targetRate);
+            ToolStripMenuItem[] bitRates = { menu_Fidel_Bits_8, menu_Fidel_Bits_16, menu_Fidel_Bits_24, menu_Fidel_Bits_32 };
+            ToolStripMenuItem[] channels = { menu_Fidel_channels_mono, menu_Fidel_channels_stereo };
+            ToolStripMenuItem source = (ToolStripMenuItem)sender;
+
+            if (sampleRates.Contains(source)) {
+                int targetRate = (int)(source.Tag);
+                if (targetRate > activeChild.SampleRate) {
+                    DialogResult result = MessageBox.Show(String.Format("Are you sure you want to upsample {0} from {1}Hz to {2}Hz?", activeChild.Text, activeChild.SampleRate, targetRate), "Confirm Upsample",
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                        MessageBoxDefaultButton.Button1);
+                    if (result == DialogResult.Yes) {
+                        activeChild.changeSampleRate(targetRate);
+                    }
+                } else if (targetRate < activeChild.SampleRate) {
+                    DialogResult result = MessageBox.Show(String.Format("Are you sure you want to downsample {0} from {1}Hz to {2}Hz?", activeChild.Text, activeChild.SampleRate, targetRate), "Confirm Downsample",
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                        MessageBoxDefaultButton.Button1);
+                    if (result == DialogResult.Yes) {
+                        activeChild.changeSampleRate(targetRate);
+                    }
+                } else {
+                    MessageBox.Show("Sample is already at " + targetRate + "Hz!");
                 }
-            } else if (targetRate < activeChild.SampleRate) {
-                DialogResult result = MessageBox.Show(String.Format("Are you sure you want to downsample {0} from {1}Hz to {2}Hz?", activeChild.Text, activeChild.SampleRate, targetRate), "Confirm Downsample",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                    MessageBoxDefaultButton.Button1);
-                if (result == DialogResult.Yes) {
-                    activeChild.changeSampleRate(targetRate);
+            }
+
+            if (bitRates.Contains(source)) {
+                short targetRate = (short)(int)(source.Tag);
+                activeChild.changeBitRate(targetRate);
+            }
+
+            if (channels.Contains(source)) {
+                short nChannels = (short)(int)(source.Tag);
+                if (nChannels == activeChild.Channels) {
+                    return;
                 }
-            } else {
-                MessageBox.Show("Sample is already at " + targetRate + "Hz!");
+                if (activeChild.Channels != 1) {
+                    DialogResult result = MessageBox.Show(String.Format("Are you sure you want to Mix {0} to {1} channels?", activeChild.Text, nChannels), "Confirm Mix",
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                        MessageBoxDefaultButton.Button1);
+                    if (result == DialogResult.Yes) {
+                        activeChild.changeChannels(nChannels);
+                    }
+                } else {
+                    activeChild.changeChannels(nChannels);
+                }
+            }
+            updateFidelityMenu();
+        }
+
+        private void maximizeAmplitudeToolStripMenuItem_Click(object sender, EventArgs e) {
+            if (activeChild == null) {
+                return;
+            }
+            activeChild.applyFX(DSP_FX.normalize, null);
+        }
+
+        private void PitchShift(object sender, EventArgs e) {
+            ToolStripMenuItem source = (ToolStripMenuItem)sender;
+            int shift = (int)source.Tag;
+            object[] args = { shift };
+            if (activeChild != null) {
+                activeChild.applyFX(DSP_FX.pitchshift, args);
             }
         }
     }

@@ -42,6 +42,7 @@ namespace Comp3931_Project_JoePelz {
             container.Add(this);
 
             InitializeComponent();
+            DoubleBuffered = true;
             fourierN = 8;
             DFT = new Complex[1][];
             DFT[0] = new Complex[fourierN];
@@ -116,7 +117,8 @@ namespace Comp3931_Project_JoePelz {
                 for (int i = 0; i < fourierN; i++) {
                     start = (int)(i / (double)fourierN * Width);
                     end = (int)((i + 1) / (double)fourierN * Width);
-                    value = (float)Math.Sqrt(DFT[0][i].magnitude() / (fourierN / 2)) * drawHeight;
+                    //value = (float)Math.Sqrt(DFT[0][i].magnitude() / (fourierN / 2)) * drawHeight;
+                    value = (float)(DFT[0][i].magnitude() / (fourierN / 2) * 2) * drawHeight;
                     g.FillRectangle(Brushes.Brown, start, drawHeight - value, end - start, value);
                 }
             } else {
@@ -126,7 +128,8 @@ namespace Comp3931_Project_JoePelz {
                     end = (int)((float)(i + 1) / (float)Width * (fourierN - 1));
                     value = 0;
                     for (int j = start; j < end; j++) {
-                        value = Math.Max(value, (float)Math.Sqrt(DFT[0][j].magnitude() / (fourierN / 2)));
+                        //value = Math.Max(value, (float)Math.Sqrt(DFT[0][j].magnitude() / (fourierN / 2)));
+                        value = Math.Max(value, (float)(DFT[0][j].magnitude() / (fourierN / 2) * 2));
                     }
                     value *= drawHeight;
                     g.DrawLine(Pens.Brown, i, drawHeight, i, drawHeight - Math.Abs(value));
@@ -162,6 +165,9 @@ namespace Comp3931_Project_JoePelz {
 
         protected override void OnMouseDown(MouseEventArgs e) {
             base.OnMouseDown(e);
+            if (e.Button == MouseButtons.Right) {
+                return;
+            }
             
             float position = (float)e.X / Width;
             int index = (int)(position * DFT[0].Length);
@@ -172,6 +178,9 @@ namespace Comp3931_Project_JoePelz {
 
         protected override void OnMouseUp(MouseEventArgs e) {
             base.OnMouseUp(e);
+            if (e.Button == MouseButtons.Right) {
+                return;
+            }
             float position = (float)e.X / Width;
             int index = (int)(position * DFT[0].Length);
             fMouseDrag = index;
@@ -201,7 +210,7 @@ namespace Comp3931_Project_JoePelz {
                 if (amplitude > 0.00001)
                     phase = DFT[0][index].angle() / Math.PI;
                 if (e.Button != MouseButtons.Left) {
-                    info = String.Format("Frequency: {0}Hz; Amplitude: {1:0.0}; Phase: {2:0.000}pi*rad", loval, amplitude, phase);
+                    info = String.Format("Frequency: {0}Hz; Amplitude: {1:0.00}; Phase: {2:0.000}pi*rad", loval, amplitude, phase);
                     OnReport(new ReportEventArgs(info));
                     return;
                 }
