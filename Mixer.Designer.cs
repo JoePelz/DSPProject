@@ -53,6 +53,13 @@
             this.fXToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reverseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.maximizeAmplitudeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pitchShiftToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_FX_ps_p3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_FX_ps_p2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_FX_ps_p1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_FX_ps_m1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_FX_ps_m2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menu_FX_ps_m3 = new System.Windows.Forms.ToolStripMenuItem();
             this.windowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolBarMain = new System.Windows.Forms.ToolStrip();
             this.btnNew = new System.Windows.Forms.ToolStripButton();
@@ -64,13 +71,6 @@
             this.btnPlay = new System.Windows.Forms.ToolStripButton();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.pitchShiftToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.menu_FX_ps_p3 = new System.Windows.Forms.ToolStripMenuItem();
-            this.menu_FX_ps_p2 = new System.Windows.Forms.ToolStripMenuItem();
-            this.menu_FX_ps_p1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.menu_FX_ps_m1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.menu_FX_ps_m2 = new System.Windows.Forms.ToolStripMenuItem();
-            this.menu_FX_ps_m3 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.toolBarMain.SuspendLayout();
             this.SuspendLayout();
@@ -104,37 +104,39 @@
             // newToolStripMenuItem
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.newToolStripMenuItem.Text = "New";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.btnNew_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.saveToolStripMenuItem.Text = "Save";
+            this.saveToolStripMenuItem.Click += new System.EventHandler(this.btnSave_Click);
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.openToolStripMenuItem.Text = "Open";
+            this.openToolStripMenuItem.Click += new System.EventHandler(this.btnOpen_Click);
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.closeToolStripMenuItem.Text = "Close";
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(100, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
             // 
             // quitToolStripMenuItem
             // 
             this.quitToolStripMenuItem.Name = "quitToolStripMenuItem";
-            this.quitToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.quitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.quitToolStripMenuItem.Text = "&Quit";
             this.quitToolStripMenuItem.Click += new System.EventHandler(this.quitToolStripMenuItem_Click);
             // 
@@ -156,7 +158,7 @@
             this.menu_Fidel_Sample_44100,
             this.menu_Fidel_Sample_88200});
             this.changeSampleRateToolStripMenuItem.Name = "changeSampleRateToolStripMenuItem";
-            this.changeSampleRateToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.changeSampleRateToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.changeSampleRateToolStripMenuItem.Text = "Sample Rate";
             // 
             // menu_Fidel_Sample_11025
@@ -199,13 +201,13 @@
             this.menu_Fidel_Bits_24,
             this.menu_Fidel_Bits_32});
             this.changeBitRateToolStripMenuItem.Name = "changeBitRateToolStripMenuItem";
-            this.changeBitRateToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.changeBitRateToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.changeBitRateToolStripMenuItem.Text = "Bit Rate";
             // 
             // menu_Fidel_Bits_8
             // 
             this.menu_Fidel_Bits_8.Name = "menu_Fidel_Bits_8";
-            this.menu_Fidel_Bits_8.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_Bits_8.Size = new System.Drawing.Size(86, 22);
             this.menu_Fidel_Bits_8.Tag = 8;
             this.menu_Fidel_Bits_8.Text = "8";
             this.menu_Fidel_Bits_8.Click += new System.EventHandler(this.menu_Fidel_Click);
@@ -213,7 +215,7 @@
             // menu_Fidel_Bits_16
             // 
             this.menu_Fidel_Bits_16.Name = "menu_Fidel_Bits_16";
-            this.menu_Fidel_Bits_16.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_Bits_16.Size = new System.Drawing.Size(86, 22);
             this.menu_Fidel_Bits_16.Tag = 16;
             this.menu_Fidel_Bits_16.Text = "16";
             this.menu_Fidel_Bits_16.Click += new System.EventHandler(this.menu_Fidel_Click);
@@ -221,7 +223,7 @@
             // menu_Fidel_Bits_24
             // 
             this.menu_Fidel_Bits_24.Name = "menu_Fidel_Bits_24";
-            this.menu_Fidel_Bits_24.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_Bits_24.Size = new System.Drawing.Size(86, 22);
             this.menu_Fidel_Bits_24.Tag = 24;
             this.menu_Fidel_Bits_24.Text = "24";
             this.menu_Fidel_Bits_24.Click += new System.EventHandler(this.menu_Fidel_Click);
@@ -229,7 +231,7 @@
             // menu_Fidel_Bits_32
             // 
             this.menu_Fidel_Bits_32.Name = "menu_Fidel_Bits_32";
-            this.menu_Fidel_Bits_32.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_Bits_32.Size = new System.Drawing.Size(86, 22);
             this.menu_Fidel_Bits_32.Tag = 32;
             this.menu_Fidel_Bits_32.Text = "32";
             this.menu_Fidel_Bits_32.Click += new System.EventHandler(this.menu_Fidel_Click);
@@ -240,13 +242,13 @@
             this.menu_Fidel_channels_mono,
             this.menu_Fidel_channels_stereo});
             this.channelsToolStripMenuItem.Name = "channelsToolStripMenuItem";
-            this.channelsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.channelsToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.channelsToolStripMenuItem.Text = "Channels";
             // 
             // menu_Fidel_channels_mono
             // 
             this.menu_Fidel_channels_mono.Name = "menu_Fidel_channels_mono";
-            this.menu_Fidel_channels_mono.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_channels_mono.Size = new System.Drawing.Size(107, 22);
             this.menu_Fidel_channels_mono.Tag = 1;
             this.menu_Fidel_channels_mono.Text = "Mono";
             this.menu_Fidel_channels_mono.Click += new System.EventHandler(this.menu_Fidel_Click);
@@ -254,7 +256,7 @@
             // menu_Fidel_channels_stereo
             // 
             this.menu_Fidel_channels_stereo.Name = "menu_Fidel_channels_stereo";
-            this.menu_Fidel_channels_stereo.Size = new System.Drawing.Size(152, 22);
+            this.menu_Fidel_channels_stereo.Size = new System.Drawing.Size(107, 22);
             this.menu_Fidel_channels_stereo.Tag = 2;
             this.menu_Fidel_channels_stereo.Text = "Stereo";
             this.menu_Fidel_channels_stereo.Click += new System.EventHandler(this.menu_Fidel_Click);
@@ -282,6 +284,67 @@
             this.maximizeAmplitudeToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
             this.maximizeAmplitudeToolStripMenuItem.Text = "Maximize Amplitude";
             this.maximizeAmplitudeToolStripMenuItem.Click += new System.EventHandler(this.maximizeAmplitudeToolStripMenuItem_Click);
+            // 
+            // pitchShiftToolStripMenuItem
+            // 
+            this.pitchShiftToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menu_FX_ps_p3,
+            this.menu_FX_ps_p2,
+            this.menu_FX_ps_p1,
+            this.menu_FX_ps_m1,
+            this.menu_FX_ps_m2,
+            this.menu_FX_ps_m3});
+            this.pitchShiftToolStripMenuItem.Name = "pitchShiftToolStripMenuItem";
+            this.pitchShiftToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.pitchShiftToolStripMenuItem.Text = "Pitch-Shift";
+            // 
+            // menu_FX_ps_p3
+            // 
+            this.menu_FX_ps_p3.Name = "menu_FX_ps_p3";
+            this.menu_FX_ps_p3.Size = new System.Drawing.Size(88, 22);
+            this.menu_FX_ps_p3.Tag = 3;
+            this.menu_FX_ps_p3.Text = "+3";
+            this.menu_FX_ps_p3.Click += new System.EventHandler(this.PitchShift);
+            // 
+            // menu_FX_ps_p2
+            // 
+            this.menu_FX_ps_p2.Name = "menu_FX_ps_p2";
+            this.menu_FX_ps_p2.Size = new System.Drawing.Size(88, 22);
+            this.menu_FX_ps_p2.Tag = 2;
+            this.menu_FX_ps_p2.Text = "+2";
+            this.menu_FX_ps_p2.Click += new System.EventHandler(this.PitchShift);
+            // 
+            // menu_FX_ps_p1
+            // 
+            this.menu_FX_ps_p1.Name = "menu_FX_ps_p1";
+            this.menu_FX_ps_p1.Size = new System.Drawing.Size(88, 22);
+            this.menu_FX_ps_p1.Tag = 1;
+            this.menu_FX_ps_p1.Text = "+1";
+            this.menu_FX_ps_p1.Click += new System.EventHandler(this.PitchShift);
+            // 
+            // menu_FX_ps_m1
+            // 
+            this.menu_FX_ps_m1.Name = "menu_FX_ps_m1";
+            this.menu_FX_ps_m1.Size = new System.Drawing.Size(88, 22);
+            this.menu_FX_ps_m1.Tag = -1;
+            this.menu_FX_ps_m1.Text = "-1";
+            this.menu_FX_ps_m1.Click += new System.EventHandler(this.PitchShift);
+            // 
+            // menu_FX_ps_m2
+            // 
+            this.menu_FX_ps_m2.Name = "menu_FX_ps_m2";
+            this.menu_FX_ps_m2.Size = new System.Drawing.Size(88, 22);
+            this.menu_FX_ps_m2.Tag = -2;
+            this.menu_FX_ps_m2.Text = "-2";
+            this.menu_FX_ps_m2.Click += new System.EventHandler(this.PitchShift);
+            // 
+            // menu_FX_ps_m3
+            // 
+            this.menu_FX_ps_m3.Name = "menu_FX_ps_m3";
+            this.menu_FX_ps_m3.Size = new System.Drawing.Size(88, 22);
+            this.menu_FX_ps_m3.Tag = -3;
+            this.menu_FX_ps_m3.Text = "-3";
+            this.menu_FX_ps_m3.Click += new System.EventHandler(this.PitchShift);
             // 
             // windowToolStripMenuItem
             // 
@@ -387,67 +450,6 @@
             this.saveFileDialog1.DefaultExt = "wav";
             this.saveFileDialog1.Filter = "Wave Files|*.wav|All files|*.*";
             this.saveFileDialog1.InitialDirectory = "Documents";
-            // 
-            // pitchShiftToolStripMenuItem
-            // 
-            this.pitchShiftToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.menu_FX_ps_p3,
-            this.menu_FX_ps_p2,
-            this.menu_FX_ps_p1,
-            this.menu_FX_ps_m1,
-            this.menu_FX_ps_m2,
-            this.menu_FX_ps_m3});
-            this.pitchShiftToolStripMenuItem.Name = "pitchShiftToolStripMenuItem";
-            this.pitchShiftToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
-            this.pitchShiftToolStripMenuItem.Text = "Pitch-Shift";
-            // 
-            // menu_FX_ps_p3
-            // 
-            this.menu_FX_ps_p3.Name = "menu_FX_ps_p3";
-            this.menu_FX_ps_p3.Size = new System.Drawing.Size(152, 22);
-            this.menu_FX_ps_p3.Tag = 3;
-            this.menu_FX_ps_p3.Text = "+3";
-            this.menu_FX_ps_p3.Click += new System.EventHandler(this.PitchShift);
-            // 
-            // menu_FX_ps_p2
-            // 
-            this.menu_FX_ps_p2.Name = "menu_FX_ps_p2";
-            this.menu_FX_ps_p2.Size = new System.Drawing.Size(152, 22);
-            this.menu_FX_ps_p2.Tag = 2;
-            this.menu_FX_ps_p2.Text = "+2";
-            this.menu_FX_ps_p2.Click += new System.EventHandler(this.PitchShift);
-            // 
-            // menu_FX_ps_p1
-            // 
-            this.menu_FX_ps_p1.Name = "menu_FX_ps_p1";
-            this.menu_FX_ps_p1.Size = new System.Drawing.Size(152, 22);
-            this.menu_FX_ps_p1.Tag = 1;
-            this.menu_FX_ps_p1.Text = "+1";
-            this.menu_FX_ps_p1.Click += new System.EventHandler(this.PitchShift);
-            // 
-            // menu_FX_ps_m1
-            // 
-            this.menu_FX_ps_m1.Name = "menu_FX_ps_m1";
-            this.menu_FX_ps_m1.Size = new System.Drawing.Size(152, 22);
-            this.menu_FX_ps_m1.Tag = -1;
-            this.menu_FX_ps_m1.Text = "-1";
-            this.menu_FX_ps_m1.Click += new System.EventHandler(this.PitchShift);
-            // 
-            // menu_FX_ps_m2
-            // 
-            this.menu_FX_ps_m2.Name = "menu_FX_ps_m2";
-            this.menu_FX_ps_m2.Size = new System.Drawing.Size(152, 22);
-            this.menu_FX_ps_m2.Tag = -2;
-            this.menu_FX_ps_m2.Text = "-2";
-            this.menu_FX_ps_m2.Click += new System.EventHandler(this.PitchShift);
-            // 
-            // menu_FX_ps_m3
-            // 
-            this.menu_FX_ps_m3.Name = "menu_FX_ps_m3";
-            this.menu_FX_ps_m3.Size = new System.Drawing.Size(152, 22);
-            this.menu_FX_ps_m3.Tag = -3;
-            this.menu_FX_ps_m3.Text = "-3";
-            this.menu_FX_ps_m3.Click += new System.EventHandler(this.PitchShift);
             // 
             // Mixer
             // 

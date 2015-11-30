@@ -299,9 +299,11 @@ namespace Comp3931_Project_JoePelz {
             extendedSamples = new double[samples.Length * L];
             int i = 0;
             for (int s = 0; s < samples.Length; s++) {
-                extendedSamples[i++] = samples[s];
+                extendedSamples[i] = samples[s];
+                i++;
                 for (int extra = 0; extra < L-1; extra++) {
-                    extendedSamples[i++ + extra] = 0;
+                    extendedSamples[i] = 0;
+                    i++;
                 }
             }
 
@@ -356,7 +358,7 @@ namespace Comp3931_Project_JoePelz {
             double max = 0;
             for (int t = 0; t < samples.Length; t++) {
                 if (Math.Abs(samples[t]) > max) {
-                    max = samples[t];
+                    max = Math.Abs(samples[t]);
                 }
             }
             return max;

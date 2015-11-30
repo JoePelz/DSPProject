@@ -240,8 +240,8 @@ namespace Comp3931_Project_JoePelz {
             //match sampling rate
             for (int channel = 0; channel < data.channels; channel++) {
                 data.samples[channel] = DSP.resample(ref data.samples[channel], data.sampleRate, wave.sampleRate);
-                data.sampleRate = wave.sampleRate;
             }
+            data.sampleRate = wave.sampleRate;
 
             wave.cutSelection(tSelStart, tSelEnd);
             wave.pasteSelection(tSelStart, data);
