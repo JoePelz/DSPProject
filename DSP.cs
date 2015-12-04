@@ -6,34 +6,26 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Comp3931_Project_JoePelz {
+    /// <summary>
+    /// Windowing modes (for frequency-domain viewing).  Combined to reduce redundant functions.
+    /// </summary>
     public enum DSP_Window { pass, triangle, cosine, blackman }
+    /// <summary>
+    /// Special FX capabilities. Combined in an enum to reduce redundant functions.
+    /// </summary>
     public enum DSP_FX { reverse, normalize, pitchshift }
-    
+    /// <summary>
+    /// Filtering modes. Combined in an enum to reduce redundant functions.
+    /// </summary>
+    public enum DSP_FILTER { convolution, DFT, IIRLowpass, IIRHighpass }
+
     class DSP {
-        private static Complex[] DFTHelper(object args) {
-            //ref double[] samples, int startIndex, int stopIndex
-            Array argArray = new object[3];
-            argArray = (Array)args;
-            double[] samples = (double[])argArray.GetValue(0);
-            int low  = (int)argArray.GetValue(1);
-            int high = (int)argArray.GetValue(2);
-
-            int N = samples.Length;
-            Complex[] DFT = new Complex[N];
-            double re, im;
-
-            for (int f = low; f < high; f++) {
-                re = 0;
-                im = 0;
-                for (int t = 0; t < N; t++) {
-                    re += (samples[t]) * Math.Cos(2 * Math.PI * f * t / N);
-                    im -= (samples[t]) * Math.Sin(2 * Math.PI * f * t / N);
-                }
-                DFT[f] = new Complex(re, im);
-            }
-            return DFT;
-        }
-
+        /// <summary>
+        /// Discrete Fourier Transform.  Transforms time-domain to frequency domain.
+        /// N == sample size.
+        /// </summary>
+        /// <param name="samples">Time-domain data to use</param>
+        /// <returns></returns>
         public static Complex[] DFT(ref double[] samples) {
             int N = samples.Length;
             Complex[] DFT = new Complex[N];
@@ -52,6 +44,12 @@ namespace Comp3931_Project_JoePelz {
             return DFT;
         }
 
+        /// <summary>
+        /// Inverse Discrete Fourier Transform.  Transforms frequency domain data to time domain.
+        /// Sample length == N (number of frequency bins)
+        /// </summary>
+        /// <param name="A"></param>
+        /// <returns></returns>
         public static double[] InverseDFT(ref Complex[] A) {
             int N = A.Length;
             double[] S = new double[N];
@@ -67,7 +65,13 @@ namespace Comp3931_Project_JoePelz {
             return S;
         }
         
-        public static double[] convolve(double[] S, double[] kernel) {
+        /// <summary>
+        /// Performs convolution on a sample set, given a convolution kernel.  returns a copy of S, convolved.
+        /// </summary>
+        /// <param name="S"></param>
+        /// <param name="kernel"></param>
+        /// <returns></returns>
+        public static double[] convolve(ref double[] S, double[] kernel) {
             int t;
             double[] result = new double[S.Length];
             for (t = 0; t < S.Length - kernel.Length; t++) {
@@ -87,7 +91,14 @@ namespace Comp3931_Project_JoePelz {
             return result;
         }
 
-        public static double[] convolveFilter(double[] S, double[] filter) {
+        /// <summary>
+        /// Filter a given set of samples (S) via convolution.  
+        /// The filter must contain multipliers in the frequency domain.
+        /// </summary>
+        /// <param name="S"></param>
+        /// <param name="filter">A set of multipliers in the frequency domain.</param>
+        /// <returns></returns>
+        public static double[] convolveFilter(ref double[] S, double[] filter) {
             int t;
             //create complex filter from simple filter
             Complex[] qFilter = new Complex[filter.Length];
@@ -106,6 +117,7 @@ namespace Comp3931_Project_JoePelz {
                     result[t] += S[t+i] * w[i];
                 }
             }
+            //Treat the samples that run off the end as 0s.
             for (; t < S.Length; t++) {
                 result[t] = 0;
                 for (int i = 0; i < S.Length - t; i++) {
@@ -117,6 +129,15 @@ namespace Comp3931_Project_JoePelz {
             return result;
         }
 
+        /// <summary>
+        /// Constructs a biquad IIR filter to filter the given samples. zeroFreq, highFreq, and mode modify the shape of the filter.
+        /// </summary>
+        /// <param name="S"></param>
+        /// <param name="zeroFreq"></param>
+        /// <param name="highFreq"></param>
+        /// <param name="mode">Highpass (1) or Lowpass (0) or reference frequency.</param>
+        /// <param name="samplingRate"></param>
+        /// <returns></returns>
         public static double[] IIRFilter(double[] S, double zeroFreq, double highFreq, double mode, double samplingRate) {
             double[] a = new double[2];
             double[] b = new double[3];
@@ -125,8 +146,6 @@ namespace Comp3931_Project_JoePelz {
 
             Complex z1 = Complex.fromMagAngle(1, zeroFreq / samplingRate * Math.PI * 2);
             Complex z2 = Complex.fromMagAngle(1, -zeroFreq / samplingRate * Math.PI * 2);
-            //Complex p1 = new Complex(+0, +0.66);
-            //Complex p2 = new Complex(-0, -0.66);
             Complex p1 = Complex.fromMagAngle(0.66, highFreq / samplingRate * Math.PI * 2);
             Complex p2 = Complex.fromMagAngle(0.66, -highFreq / samplingRate * Math.PI * 2);
 
@@ -144,10 +163,10 @@ namespace Comp3931_Project_JoePelz {
                 Zr = 0; //low pass
                 Wr = 0;
             } else if (mode == 1) {
-                Zr = samplingRate / 2;
+                Zr = samplingRate / 2; //high pass
                 Wr = Math.PI;
             } else {
-                Zr = mode; //high pass
+                Zr = mode; 
                 Wr = Zr / samplingRate * Math.PI * 2;
             }
             //reference frequency as angle
@@ -175,11 +194,17 @@ namespace Comp3931_Project_JoePelz {
             a[0] = -p1.re - p2.re;
             a[1] = p1.re * p2.re - p1.im * p2.im;
             
-            return processIIRFilter(S, a, b);
+            return processIIRFilter(ref S, a, b);
         }
 
-
-        private static double[] processIIRFilter(double[] S, double[] a, double[] b) {
+        /// <summary>
+        /// Runs a set of samples (S) in the time domain through an IIR filter, described by a and b. `a` represents multiplied historic results in the filtering process. `b` represents multipliers from the sample set.
+        /// </summary>
+        /// <param name="S"></param>
+        /// <param name="a">Array of influence factors for the feedback loop, going back in time the length of a.</param>
+        /// <param name="b">Array of influence factors for the input samples, going back in time the length of b.</param>
+        /// <returns></returns>
+        private static double[] processIIRFilter(ref double[] S, double[] a, double[] b) {
             double[] result = new double[S.Length];
 
             int shortest = Math.Min(a.Length, b.Length);
@@ -203,7 +228,12 @@ namespace Comp3931_Project_JoePelz {
             return result;
         }
 
-
+        /// <summary>
+        /// Filters a sample set by converting to frequency domain, multiplying by factors, and reverting to time domain.
+        /// </summary>
+        /// <param name="S"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
         public static double[] dftFilter(double[] S, double[] filter) {
             int N = filter.Length;
             double[] result = new double[S.Length];
@@ -236,6 +266,12 @@ namespace Comp3931_Project_JoePelz {
             return result;
         }
 
+        /// <summary>
+        /// Given a multi-channel sample array, match the number of channels to the given newChannels.  (clone existing channels if needed)
+        /// </summary>
+        /// <param name="samples"></param>
+        /// <param name="newChannels"></param>
+        /// <returns></returns>
         public static double[][] matchChannels(double[][] samples, short newChannels) {
             if (samples.Length == newChannels) {
                 return samples;
@@ -256,6 +292,12 @@ namespace Comp3931_Project_JoePelz {
             return samples;
         }
 
+        /// <summary>
+        /// Take two sample arrays and add them together. Arrays may be different lengths, and the longer length is used..
+        /// </summary>
+        /// <param name="sampleA"></param>
+        /// <param name="sampleB"></param>
+        /// <returns></returns>
         public static double[] StereoToMono(ref double[] sampleA, ref double[] sampleB) {
             double[] result = new double[Math.Max(sampleA.Length, sampleB.Length)];
             long limit = Math.Min(sampleA.Length, sampleB.Length);
@@ -274,6 +316,16 @@ namespace Comp3931_Project_JoePelz {
             return result;
         }
 
+        /// <summary>
+        /// Resample audio from one sample rate to another. 
+        /// Works by inserting 0s between existing samples at a particular ratio, 
+        /// running a lowpass filter, 
+        /// and selecting samples at a different ratio.
+        /// </summary>
+        /// <param name="samples"></param>
+        /// <param name="oldRate"></param>
+        /// <param name="newRate"></param>
+        /// <returns></returns>
         public static double[] resample(ref double[] samples, int oldRate, int newRate) {
             double[] extendedSamples, result;
             int L, M;
@@ -322,6 +374,13 @@ namespace Comp3931_Project_JoePelz {
             return result;
         }
 
+        /// <summary>
+        /// Reinterpret the sample rate of a given set of samples to make it seem as though the pitch has been shifted by the given number of semitones.
+        /// </summary>
+        /// <param name="samples"></param>
+        /// <param name="sampleRate"></param>
+        /// <param name="semitones"></param>
+        /// <returns></returns>
         public static double[] pitchShift(ref double[] samples, int sampleRate, int semitones) {
             double[] extendedSamples, result;
             double freqRatio = Math.Pow(2, (double)semitones / 12.0);
@@ -351,9 +410,11 @@ namespace Comp3931_Project_JoePelz {
         }
 
 
-        // Returns the highest amplitude found in the sample set. 
-        // Value is + or - accordingly.
-
+        /// <summary>
+        /// Returns the highest amplitude found in the sample set. Only returns positive numbers.
+        /// </summary>
+        /// <param name="samples"></param>
+        /// <returns></returns>
         private static double maxAmplitude(double[] samples) {
             double max = 0;
             for (int t = 0; t < samples.Length; t++) {
@@ -409,6 +470,12 @@ namespace Comp3931_Project_JoePelz {
             }
         }
 
+        /// <summary>
+        /// Administer some special effects. Wheee!
+        /// </summary>
+        /// <param name="effect"></param>
+        /// <param name="args"></param>
+        /// <param name="data"></param>
         public static void ApplyFX(DSP_FX effect, object[] args, ref WaveFile data) {
             double factor;
             switch (effect) {

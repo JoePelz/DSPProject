@@ -10,12 +10,16 @@ using System.Windows.Forms;
 
 namespace Comp3931_Project_JoePelz {
 
+    /// <summary>
+    /// delegate to handle my custom "report" event.  (Report events get posted to the rightmost end of the status bar)
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     public delegate void ReportEventHandler(object sender, ReportEventArgs e);
 
     public partial class WaveForm : Form {
         private WaveFile wave;
         private WavePlayer player2;
-        private Complex[][] DFT;
         private DSP_Window sampleWindowing = DSP_Window.pass;
         private PlaybackStatus statusPlayback = PlaybackStatus.Stopped;
         private int fourierN = 882;
@@ -27,6 +31,11 @@ namespace Comp3931_Project_JoePelz {
 
         private Mixer parent = null;
 
+        /// <summary>
+        /// Constructor:  can only create a WaveForm with a WaveFile supplied.
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="wave"></param>
         public WaveForm(Mixer parent, WaveFile wave) {
             this.wave = wave;
             this.parent = parent;
@@ -40,6 +49,12 @@ namespace Comp3931_Project_JoePelz {
             panelFourier.SampleRate = wave.sampleRate;
         }
         
+        /// <summary>
+        /// Handle hotkeys here. Overrides existing function, but calls super if keys are unhandled.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="keys"></param>
+        /// <returns></returns>
         protected override bool ProcessCmdKey(ref Message message, Keys keys) {
             switch (keys) {
                 case Keys.C | Keys.Control:
@@ -66,13 +81,21 @@ namespace Comp3931_Project_JoePelz {
             return base.ProcessCmdKey(ref message, keys);
         }
 
+        /// <summary>
+        /// Handle messages from the playback thread. (updates current playback status.
+        /// </summary>
+        /// <param name="m"></param>
         protected override void WndProc(ref Message m) {
             if (m.Msg == WinmmHook.WM_USER + 1) {
                 PlaybackStatus status = (PlaybackStatus)(int)m.WParam;
-                updatePlaybackStatus(status);
+                statusPlayback = status;
+                parent.playbackUpdate(status);
             }
             base.WndProc(ref m);
         }
+        /*
+        ================  Accessors/Mutators  ================
+        */
 
         public int SampleRate {
             get { return wave.sampleRate; }
@@ -89,6 +112,43 @@ namespace Comp3931_Project_JoePelz {
         public PlaybackStatus State {
             get { return statusPlayback; }
         }
+
+        public void setPath(String path) {
+            wave.setPath(path);
+            this.Text = wave.getName();
+        }
+        
+        public void changeSampleRate(int newRate) {
+            if (newRate == wave.sampleRate) {
+                return;
+            }
+
+            for (int channel = 0; channel < wave.channels; channel++) {
+                wave.samples[channel] = DSP.resample(ref wave.samples[channel], wave.sampleRate, newRate);
+            }
+            wave.sampleRate = newRate;
+            updateStatusBar();
+            calculateDFT();
+            panelWave.setSamples(wave.samples);
+            panelWave.Invalidate();
+        }
+
+        public void changeBitRate(short newBitDepth) {
+            wave.bitDepth = newBitDepth;
+            updateStatusBar();
+        }
+
+        public void changeChannels(short nChannels) {
+            wave.samples = DSP.matchChannels(wave.samples, nChannels);
+            wave.channels = nChannels;
+            updateStatusBar();
+            panelWave.setSamples(wave.samples);
+            panelWave.Invalidate();
+        }
+        
+        /*
+        ================  Interaction Callbacks  ================
+        */
 
         public void wavePlayPause() {
             if (player2 == null) {
@@ -115,82 +175,6 @@ namespace Comp3931_Project_JoePelz {
             if (player2 != null) {
                 player2.PlaybackStop();
             }
-        }
-
-        public void updatePlaybackStatus(PlaybackStatus update) {
-            statusPlayback = update;
-            parent.playbackUpdate(update);
-        }
-
-        private void calculateDFT() {
-            DFT = new Complex[wave.channels][];
-            double[] samples = new double[fourierN];
-
-            //This is for display, so it (intentionally) grabs the first channel only
-            for (int i = 0; i < samples.Length; i++) {
-                samples[i] = 0;
-            }
-            int startIndex = Math.Max(tSelStart, 0);
-            
-            int N = Math.Min(wave.getNumSamples() - startIndex, fourierN);
-            Array.Copy(wave.samples[0], startIndex, samples, 0, N);
-
-            if (sampleWindowing == DSP_Window.triangle) {
-                DSP.WindowTriangle(ref samples);
-            } else if (sampleWindowing == DSP_Window.cosine) {
-                DSP.WindowCosine(ref samples);
-            } else if (sampleWindowing == DSP_Window.blackman) {
-                DSP.WindowBlackman(ref samples);
-            } else {
-                DSP.WindowPassthrough(ref samples);
-            }
-
-            DFT[0] = DSP.DFT(ref samples);
-            panelFourier.SampleRate = wave.sampleRate;
-            panelFourier.Fourier = DFT;
-            panelFourier.Invalidate();
-        }
-
-        private void updateStatusBar() {
-            statusSampling.Text = String.Format("Sampling Rate: {0} Hz", wave.sampleRate);
-            statusBits.Text = String.Format("Depth: {0}-bit", wave.bitDepth);
-            statusLength.Text = String.Format("Length: {0:0.000}s ({1} samples)", (double)wave.getNumSamples() / wave.sampleRate, wave.getNumSamples());
-            statusSelection.Text = String.Format("Selected: {0:0.000} seconds ({1}..{2})", (tSelEnd - tSelStart + 1) / (double)wave.sampleRate, tSelStart, tSelEnd);
-        }
-
-        public void updateReport(String msg) {
-            statusReport.Text = msg;
-        }
-
-        private void updateSelection(Object sender, EventArgs e) {
-            tSelStart = panelWave.SelectionStart;
-            tSelEnd = panelWave.SelectionEnd;
-            calculateDFT();
-            panelFourier.Invalidate();
-            updateStatusBar();
-            waveStop();
-            invalidPlayer = true;
-        }
-
-        private void updateFreqSel(Object sender, EventArgs e) {
-            fSelStart = panelFourier.SelectionStart;
-            fSelEnd = panelFourier.SelectionEnd;
-        }
-
-        private void WaveForm_GotFocus(object sender, EventArgs e) {
-            this.parent.setActiveWindow(this);
-        }
-
-        private void WaveForm_FormClosed(object sender, FormClosedEventArgs e) {
-            if (player2 != null) {
-                player2.Dispose();
-            }
-            parent.childDied(this);
-        }
-
-        public void setPath(String path) {
-            wave.setPath(path);
-            this.Text = wave.getName();
         }
 
         public void save() {
@@ -252,7 +236,97 @@ namespace Comp3931_Project_JoePelz {
             invalidPlayer = true;
         }
 
-        public void filterSelectedFrequencies(int method = 0) {
+        /*
+        ================  Other Callbacks  ================
+        */
+
+        private void WaveForm_GotFocus(object sender, EventArgs e) {
+            this.parent.setActiveWindow(this);
+        }
+
+        private void WaveForm_FormClosed(object sender, FormClosedEventArgs e) {
+            if (player2 != null) {
+                player2.Dispose();
+            }
+            parent.childDied(this);
+        }
+
+        private void windowingToolStripMenuItem_Click(object sender, EventArgs e) {
+            ToolStripMenuItem src = (ToolStripMenuItem) sender;
+            sampleWindowing = (DSP_Window) src.Tag;
+            calculateDFT();
+        }
+
+        private void filterToolStripMenuItem_Click(object sender, EventArgs e) {
+            ToolStripMenuItem src = (ToolStripMenuItem) sender;
+            filterSelectedFrequencies((DSP_FILTER) src.Tag);
+        }
+
+
+        /*
+        ================  UI Update Helpers  ================
+        */
+
+        private void calculateDFT() {
+            Complex[][] DFT = new Complex[wave.channels][];
+            double[] samples = new double[fourierN];
+
+            //This is for display, so it (intentionally) grabs the first channel only
+            for (int i = 0; i < samples.Length; i++) {
+                samples[i] = 0;
+            }
+            int startIndex = Math.Max(tSelStart, 0);
+            
+            int N = Math.Min(wave.getNumSamples() - startIndex, fourierN);
+            Array.Copy(wave.samples[0], startIndex, samples, 0, N);
+
+            if (sampleWindowing == DSP_Window.triangle) {
+                DSP.WindowTriangle(ref samples);
+            } else if (sampleWindowing == DSP_Window.cosine) {
+                DSP.WindowCosine(ref samples);
+            } else if (sampleWindowing == DSP_Window.blackman) {
+                DSP.WindowBlackman(ref samples);
+            }
+            //if DSP.WindowPassthrough or unknown,
+            //  pass through unchanged
+
+            DFT[0] = DSP.DFT(ref samples);
+            panelFourier.SampleRate = wave.sampleRate;
+            panelFourier.Fourier = DFT;
+            panelFourier.Invalidate();
+        }
+
+        private void updateStatusBar() {
+            statusSampling.Text = String.Format("Sampling Rate: {0} Hz", wave.sampleRate);
+            statusBits.Text = String.Format("Depth: {0}-bit", wave.bitDepth);
+            statusLength.Text = String.Format("Length: {0:0.000}s ({1} samples)", (double)wave.getNumSamples() / wave.sampleRate, wave.getNumSamples());
+            statusSelection.Text = String.Format("Selected: {0:0.000} seconds ({1}..{2})", (tSelEnd - tSelStart + 1) / (double)wave.sampleRate, tSelStart, tSelEnd);
+        }
+
+        public void updateReport(String msg) {
+            statusReport.Text = msg;
+        }
+
+        private void updateSelection(Object sender, EventArgs e) {
+            tSelStart = panelWave.SelectionStart;
+            tSelEnd = panelWave.SelectionEnd;
+            calculateDFT();
+            panelFourier.Invalidate();
+            updateStatusBar();
+            waveStop();
+            invalidPlayer = true;
+        }
+
+        private void updateFreqSel(Object sender, EventArgs e) {
+            fSelStart = panelFourier.SelectionStart;
+            fSelEnd = panelFourier.SelectionEnd;
+        }
+
+        /*
+        ================  UI Update Helpers  ================
+        */
+
+        public void filterSelectedFrequencies(DSP_FILTER method = DSP_FILTER.convolution) {
             if (fSelStart == fSelEnd)
                 return;
             
@@ -270,17 +344,17 @@ namespace Comp3931_Project_JoePelz {
 
             for (int channel = 0; channel < wave.channels; channel++) {
                 switch (method) {
-                    case 0:
-                        wave.samples[channel] = DSP.convolveFilter(wave.samples[channel], filter);
+                    case DSP_FILTER.convolution:
+                        wave.samples[channel] = DSP.convolveFilter(ref wave.samples[channel], filter);
                         break;
-                    case 1:
+                    case DSP_FILTER.DFT:
                         wave.samples[channel] = DSP.dftFilter(wave.samples[channel], filter);
                         break;
-                    case 2: //low pass
+                    case DSP_FILTER.IIRLowpass: //low pass
                         // LowPass IIRFilter  ( samples, 1x freq, 0x freq, 0, SampleRate );
                         wave.samples[channel] = DSP.IIRFilter(wave.samples[channel], Math.Min(criticalPoint + 5000, SampleRate / 2), Math.Max(0, criticalPoint - 5000), 0, SampleRate);
                         break;
-                    case 3: //high pass
+                    case DSP_FILTER.IIRHighpass: //high pass
                         // HighPass IIRFilter  ( samples, 0x freq, 1x freq, 1, SampleRate );
                         wave.samples[channel] = DSP.IIRFilter(wave.samples[channel], Math.Max(0, criticalPoint - 5000), Math.Min(criticalPoint + 5000, SampleRate/2), 1, SampleRate);
                         break;
@@ -312,75 +386,19 @@ namespace Comp3931_Project_JoePelz {
             invalidPlayer = true;
         }
 
-        public void changeSampleRate(int newRate) {
-            if (newRate == wave.sampleRate) {
-                return;
-            }
-            
-            for (int channel = 0; channel < wave.channels; channel++) {
-                wave.samples[channel] = DSP.resample(ref wave.samples[channel], wave.sampleRate, newRate);
-            }
-            wave.sampleRate = newRate;
-            updateStatusBar();
-            calculateDFT();
-            panelWave.setSamples(wave.samples);
-            panelWave.Invalidate();
-        }
-
-        public void changeBitRate(short newBitDepth) {
-            wave.bitDepth = newBitDepth;
-            updateStatusBar();
-        }
-
-        public void changeChannels(short nChannels) {
-            wave.samples = DSP.matchChannels(wave.samples, nChannels);
-            wave.channels = nChannels;
-            updateStatusBar();
-            panelWave.setSamples(wave.samples);
-            panelWave.Invalidate();
-        }
-
+        /// <summary>
+        /// Event handler for my custom "Report" event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void WaveForm_Report(Object sender, ReportEventArgs e) {
             updateReport(e.report);
         }
-        
-        private void passthroughToolStripMenuItem_Click(object sender, EventArgs e) {
-            sampleWindowing = DSP_Window.pass;
-            calculateDFT();
-        }
-
-        private void triangleToolStripMenuItem_Click(object sender, EventArgs e) {
-            sampleWindowing = DSP_Window.triangle;
-            calculateDFT();
-        }
-
-        private void cosineToolStripMenuItem_Click(object sender, EventArgs e) {
-            sampleWindowing = DSP_Window.cosine;
-            calculateDFT();
-        }
-
-        private void blackmanToolStripMenuItem_Click(object sender, EventArgs e) {
-            sampleWindowing = DSP_Window.blackman;
-            calculateDFT();
-        }
-
-        private void convolutionFilterToolStripMenuItem_Click(object sender, EventArgs e) {
-            filterSelectedFrequencies(0);
-        }
-
-        private void dFTFilteringToolStripMenuItem_Click(object sender, EventArgs e) {
-            filterSelectedFrequencies(1);
-        }
-
-        private void iIRLowpassToolStripMenuItem_Click(object sender, EventArgs e) {
-            filterSelectedFrequencies(2);
-        }
-
-        private void iIRHighpassToolStripMenuItem_Click(object sender, EventArgs e) {
-            filterSelectedFrequencies(3);
-        }
     }
 
+    /// <summary>
+    /// Custom report event, carries a message to display.
+    /// </summary>
     public class ReportEventArgs : EventArgs {
         public String report;
         public ReportEventArgs(String message) : base() {

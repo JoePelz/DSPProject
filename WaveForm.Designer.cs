@@ -37,6 +37,11 @@
             this.triangleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cosineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.blackmanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.filterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.convolutionFilterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dFTFilteringToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.iIRLowpassToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.iIRHighpassToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusBar = new System.Windows.Forms.StatusStrip();
             this.statusSampling = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusBits = new System.Windows.Forms.ToolStripStatusLabel();
@@ -44,11 +49,6 @@
             this.statusSelection = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusReport = new System.Windows.Forms.ToolStripStatusLabel();
             this.panelWave = new Comp3931_Project_JoePelz.WavePanel();
-            this.filterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.convolutionFilterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.dFTFilteringToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.iIRLowpassToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.iIRHighpassToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panelFourier.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
             this.statusBar.SuspendLayout();
@@ -85,7 +85,7 @@
             this.windowingModeToolStripMenuItem,
             this.filterToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(170, 48);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(170, 70);
             // 
             // windowingModeToolStripMenuItem
             // 
@@ -101,30 +101,77 @@
             // passthroughToolStripMenuItem
             // 
             this.passthroughToolStripMenuItem.Name = "passthroughToolStripMenuItem";
-            this.passthroughToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.passthroughToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.passthroughToolStripMenuItem.Tag = Comp3931_Project_JoePelz.DSP_Window.pass;
             this.passthroughToolStripMenuItem.Text = "Passthrough";
-            this.passthroughToolStripMenuItem.Click += new System.EventHandler(this.passthroughToolStripMenuItem_Click);
+            this.passthroughToolStripMenuItem.Click += new System.EventHandler(this.windowingToolStripMenuItem_Click);
             // 
             // triangleToolStripMenuItem
             // 
             this.triangleToolStripMenuItem.Name = "triangleToolStripMenuItem";
-            this.triangleToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.triangleToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.triangleToolStripMenuItem.Tag = Comp3931_Project_JoePelz.DSP_Window.triangle;
             this.triangleToolStripMenuItem.Text = "Triangle";
-            this.triangleToolStripMenuItem.Click += new System.EventHandler(this.triangleToolStripMenuItem_Click);
+            this.triangleToolStripMenuItem.Click += new System.EventHandler(this.windowingToolStripMenuItem_Click);
             // 
             // cosineToolStripMenuItem
             // 
             this.cosineToolStripMenuItem.Name = "cosineToolStripMenuItem";
-            this.cosineToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.cosineToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.cosineToolStripMenuItem.Tag = Comp3931_Project_JoePelz.DSP_Window.cosine;
             this.cosineToolStripMenuItem.Text = "Cosine";
-            this.cosineToolStripMenuItem.Click += new System.EventHandler(this.cosineToolStripMenuItem_Click);
+            this.cosineToolStripMenuItem.Click += new System.EventHandler(this.windowingToolStripMenuItem_Click);
             // 
             // blackmanToolStripMenuItem
             // 
             this.blackmanToolStripMenuItem.Name = "blackmanToolStripMenuItem";
-            this.blackmanToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.blackmanToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.blackmanToolStripMenuItem.Tag = Comp3931_Project_JoePelz.DSP_Window.blackman;
             this.blackmanToolStripMenuItem.Text = "Blackman";
-            this.blackmanToolStripMenuItem.Click += new System.EventHandler(this.blackmanToolStripMenuItem_Click);
+            this.blackmanToolStripMenuItem.Click += new System.EventHandler(this.windowingToolStripMenuItem_Click);
+            // 
+            // filterToolStripMenuItem
+            // 
+            this.filterToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.convolutionFilterToolStripMenuItem,
+            this.dFTFilteringToolStripMenuItem,
+            this.iIRLowpassToolStripMenuItem,
+            this.iIRHighpassToolStripMenuItem});
+            this.filterToolStripMenuItem.Name = "filterToolStripMenuItem";
+            this.filterToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.filterToolStripMenuItem.Text = "Filter";
+            // 
+            // convolutionFilterToolStripMenuItem
+            // 
+            this.convolutionFilterToolStripMenuItem.Name = "convolutionFilterToolStripMenuItem";
+            this.convolutionFilterToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.convolutionFilterToolStripMenuItem.Tag = DSP_FILTER.convolution;
+            this.convolutionFilterToolStripMenuItem.Text = "Convolution Filter";
+            this.convolutionFilterToolStripMenuItem.Click += new System.EventHandler(this.filterToolStripMenuItem_Click);
+            // 
+            // dFTFilteringToolStripMenuItem
+            // 
+            this.dFTFilteringToolStripMenuItem.Name = "dFTFilteringToolStripMenuItem";
+            this.dFTFilteringToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.dFTFilteringToolStripMenuItem.Tag = DSP_FILTER.DFT;
+            this.dFTFilteringToolStripMenuItem.Text = "DFT Filter";
+            this.dFTFilteringToolStripMenuItem.Click += new System.EventHandler(this.filterToolStripMenuItem_Click);
+            // 
+            // iIRLowpassToolStripMenuItem
+            // 
+            this.iIRLowpassToolStripMenuItem.Name = "iIRLowpassToolStripMenuItem";
+            this.iIRLowpassToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.iIRLowpassToolStripMenuItem.Tag = DSP_FILTER.IIRLowpass;
+            this.iIRLowpassToolStripMenuItem.Text = "IIR Lowpass";
+            this.iIRLowpassToolStripMenuItem.Click += new System.EventHandler(this.filterToolStripMenuItem_Click);
+            // 
+            // iIRHighpassToolStripMenuItem
+            // 
+            this.iIRHighpassToolStripMenuItem.Name = "iIRHighpassToolStripMenuItem";
+            this.iIRHighpassToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.iIRHighpassToolStripMenuItem.Tag = DSP_FILTER.IIRHighpass;
+            this.iIRHighpassToolStripMenuItem.Text = "IIR Highpass";
+            this.iIRHighpassToolStripMenuItem.Click += new System.EventHandler(this.filterToolStripMenuItem_Click);
             // 
             // statusBar
             // 
@@ -202,45 +249,6 @@
             this.panelWave.Size = new System.Drawing.Size(1000, 160);
             this.panelWave.TabIndex = 1;
             this.panelWave.SelChanged += new Comp3931_Project_JoePelz.TimeSelChangedEventHandler(this.updateSelection);
-            // 
-            // filterToolStripMenuItem
-            // 
-            this.filterToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.convolutionFilterToolStripMenuItem,
-            this.dFTFilteringToolStripMenuItem,
-            this.iIRLowpassToolStripMenuItem,
-            this.iIRHighpassToolStripMenuItem});
-            this.filterToolStripMenuItem.Name = "filterToolStripMenuItem";
-            this.filterToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
-            this.filterToolStripMenuItem.Text = "Filter";
-            // 
-            // convolutionFilterToolStripMenuItem
-            // 
-            this.convolutionFilterToolStripMenuItem.Name = "convolutionFilterToolStripMenuItem";
-            this.convolutionFilterToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
-            this.convolutionFilterToolStripMenuItem.Text = "Convolution Filter";
-            this.convolutionFilterToolStripMenuItem.Click += new System.EventHandler(this.convolutionFilterToolStripMenuItem_Click);
-            // 
-            // dFTFilteringToolStripMenuItem
-            // 
-            this.dFTFilteringToolStripMenuItem.Name = "dFTFilteringToolStripMenuItem";
-            this.dFTFilteringToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
-            this.dFTFilteringToolStripMenuItem.Text = "DFT Filter";
-            this.dFTFilteringToolStripMenuItem.Click += new System.EventHandler(this.dFTFilteringToolStripMenuItem_Click);
-            // 
-            // iIRLowpassToolStripMenuItem
-            // 
-            this.iIRLowpassToolStripMenuItem.Name = "iIRLowpassToolStripMenuItem";
-            this.iIRLowpassToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
-            this.iIRLowpassToolStripMenuItem.Text = "IIR Lowpass";
-            this.iIRLowpassToolStripMenuItem.Click += new System.EventHandler(this.iIRLowpassToolStripMenuItem_Click);
-            // 
-            // iIRHighpassToolStripMenuItem
-            // 
-            this.iIRHighpassToolStripMenuItem.Name = "iIRHighpassToolStripMenuItem";
-            this.iIRHighpassToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
-            this.iIRHighpassToolStripMenuItem.Text = "IIR Highpass";
-            this.iIRHighpassToolStripMenuItem.Click += new System.EventHandler(this.iIRHighpassToolStripMenuItem_Click);
             // 
             // WaveForm
             // 

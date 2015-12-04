@@ -147,7 +147,6 @@ namespace Comp3931_Project_JoePelz {
 
         private void btnSave_Click(object sender, EventArgs e) {
             if (saveFileDialog1.ShowDialog() == DialogResult.OK) {
-                MessageBox.Show("File to save: " + saveFileDialog1.FileName);
                 if (activeChild != null) {
                     activeChild.setPath(saveFileDialog1.FileName);
                     activeChild.save();

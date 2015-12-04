@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace Comp3931_Project_JoePelz {
 
+    /// <summary>
+    /// Messages handled in my thread message queue
+    /// </summary>
     public enum RecorderMsg {
         WIM_OPEN,
         WIM_DATA,
@@ -58,7 +61,9 @@ namespace Comp3931_Project_JoePelz {
             Dispose();
         }
 
-        /* ===============  Entry points =============== */
+        /* 
+        ===============  Public Recording Interface  =============== 
+        */
 
         public bool Recording {
             get { return bRecording; }
@@ -92,7 +97,9 @@ namespace Comp3931_Project_JoePelz {
             return result;
         }
 
-        /* ===============  Queue processing =============== */
+        /* 
+        ===============  Queue processing  =============== 
+        */
 
         private void WIM_proc(IntPtr hdrvr, int uMsg, int dwUser, ref WaveHdr wavhdr, int dwParam2) {
             switch (uMsg) {
@@ -143,7 +150,9 @@ namespace Comp3931_Project_JoePelz {
             }
         }
 
-        /* ===============  Actions =============== */
+        /* 
+        ===============  Actions =============== 
+        */
 
         private void OnWimOpen() {
             WinmmHook.waveInAddBuffer(hWaveIn, ref waveHdr1, Marshal.SizeOf(waveHdr1));

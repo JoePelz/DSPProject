@@ -13,7 +13,77 @@ namespace Comp3931_Project_JoePelz {
         public double[][] samples = null;
         private string path; // C:/temp/myFile.wav
         private string name; // myFile.wav
-        
+
+        /*
+        ==============   Constructors  ================
+        */
+
+        public WaveFile() {
+            generateSamples();
+            path = null;
+            name = "[Untitled File]";
+        }
+
+        public WaveFile(short bitDepth, short channels, int sampleRate, byte[] data) {
+            this.bitDepth = bitDepth;
+            this.channels = channels;
+            this.sampleRate = sampleRate;
+            path = null;
+            name = "[Untitled Recording]";
+
+            System.IO.MemoryStream ms = new System.IO.MemoryStream(data);
+            System.IO.BinaryReader br = new System.IO.BinaryReader(ms);
+            int numSamples = data.Length / (channels * (bitDepth / 8));
+            samples = new double[channels][];
+            for (int c = 0; c < channels; c++) {
+                samples[c] = new double[numSamples];
+            }
+
+            if (bitDepth == 16) {
+                for (int i = 0; i < numSamples; i++) {
+                    for (int c = 0; c < channels; c++) {
+                        //assuming signed
+                        //normalized to -1.0..+1.0
+                        samples[c][i] = (double)br.ReadInt16() / 32768.0;
+                    }
+                }
+            } else if (bitDepth == 8) {
+                for (int i = 0; i < numSamples; i++) {
+                    for (int c = 0; c < channels; c++) {
+                        //assuming unsigned
+                        //normalized to -1.0..+1.0
+                        samples[c][i] = (double)br.ReadByte() / 128.0 - 1.0;
+                    }
+                }
+            } else {
+                throw new FormatException("Bit depth must be one of 8 or 16 bits.");
+            }
+
+        }
+
+        private WaveFile(short bitDepth, short channels, int sampleRate) {
+            path = null;
+            name = "[Untitled File]";
+            this.bitDepth = bitDepth;
+            this.channels = channels;
+            this.sampleRate = sampleRate;
+            samples = new double[channels][];
+        }
+
+        public WaveFile(string src) {
+            path = src;
+            name = path.Substring(path.LastIndexOf("\\") + 1);
+            readFile();
+        }
+
+        /*
+        ==============   Read/Write Functions  ================
+        */
+
+        public void save() {
+            writeFile(path);
+        }
+
         public void readFile() {
             System.IO.BinaryReader sr;
 
@@ -167,31 +237,6 @@ namespace Comp3931_Project_JoePelz {
             wr.Close();
         }
 
-        public byte[] getData() {
-            byte[] result = new byte[getNumSamples() * channels * (bitDepth / 8)];
-            System.IO.MemoryStream ms = new System.IO.MemoryStream(result);
-            System.IO.BinaryWriter wr = new System.IO.BinaryWriter(ms);
-
-            if (bitDepth == 16) {
-                for (int i = 0; i < getNumSamples(); i++) {
-                    for (int c = 0; c < channels; c++) {
-                        //assuming signed
-                        wr.Write((short)(samples[c][i] * 32768));
-                    }
-                }
-            } else if (bitDepth == 8) {
-                for (int i = 0; i < getNumSamples(); i++) {
-                    for (int c = 0; c < channels; c++) {
-                        //assuming unsigned
-                        wr.Write((byte)(samples[c][i] * 128 + 128));
-                    }
-                }
-            }
-            wr.Dispose();
-            ms.Dispose();
-            return result;
-        }
-
         public void writeStream(System.IO.Stream outStream) {
             System.IO.BinaryWriter wr;
 
@@ -246,63 +291,34 @@ namespace Comp3931_Project_JoePelz {
                 wr.Write((byte)0); //padding byte, if the above equation is odd
         }
 
-        public WaveFile() {
-            generateSamples();
-            path = null;
-            name = "[Untitled File]";
-        }
-
-        public WaveFile(short bitDepth, short channels, int sampleRate, byte[] data) {
-            this.bitDepth = bitDepth;
-            this.channels = channels;
-            this.sampleRate = sampleRate;
-            path = null;
-            name = "[Untitled Recording]";
-
-            System.IO.MemoryStream ms = new System.IO.MemoryStream(data);
-            System.IO.BinaryReader br = new System.IO.BinaryReader(ms);
-            int numSamples = data.Length / (channels * (bitDepth / 8));
-            samples = new double[channels][];
-            for (int c = 0; c < channels; c++) {
-                samples[c] = new double[numSamples];
-            }
+        public byte[] getData() {
+            byte[] result = new byte[getNumSamples() * channels * (bitDepth / 8)];
+            System.IO.MemoryStream ms = new System.IO.MemoryStream(result);
+            System.IO.BinaryWriter wr = new System.IO.BinaryWriter(ms);
 
             if (bitDepth == 16) {
-                for (int i = 0; i < numSamples; i++) {
+                for (int i = 0; i < getNumSamples(); i++) {
                     for (int c = 0; c < channels; c++) {
                         //assuming signed
-                        //normalized to -1.0..+1.0
-                        samples[c][i] = (double)br.ReadInt16() / 32768.0;
+                        wr.Write((short)(samples[c][i] * 32768));
                     }
                 }
             } else if (bitDepth == 8) {
-                for (int i = 0; i < numSamples; i++) {
+                for (int i = 0; i < getNumSamples(); i++) {
                     for (int c = 0; c < channels; c++) {
                         //assuming unsigned
-                        //normalized to -1.0..+1.0
-                        samples[c][i] = (double)br.ReadByte() / 128.0 - 1.0;
+                        wr.Write((byte)(samples[c][i] * 128 + 128));
                     }
                 }
-            } else {
-                throw new FormatException("Bit depth must be one of 8 or 16 bits.");
             }
-
+            wr.Dispose();
+            ms.Dispose();
+            return result;
         }
 
-        private WaveFile(short bitDepth, short channels, int sampleRate) {
-            path = null;
-            name = "[Untitled File]";
-            this.bitDepth = bitDepth;
-            this.channels = channels;
-            this.sampleRate = sampleRate;
-            samples = new double[channels][];
-        }
-
-        public WaveFile(string src) {
-            path = src;
-            name = path.Substring(path.LastIndexOf("\\") + 1);
-            readFile();
-        }
+        /*
+        ==============   Generate Hard-Coded Test Samples ================
+        */
 
         private void generateSamples() {
             double A, f, phase;
@@ -384,6 +400,10 @@ namespace Comp3931_Project_JoePelz {
                 }
             }
         }
+        
+        /*
+        ==============  Accessors  ================
+        */
 
         public int getNumSamples() {
             if (samples != null && samples[0] != null) {
@@ -404,18 +424,27 @@ namespace Comp3931_Project_JoePelz {
             return name;
         }
 
+        /// <summary>
+        /// Check if a given sample index is in range
+        /// </summary>
+        /// <param name="sample"></param>
+        /// <returns></returns>
+        public bool inRange(int sample) {
+            return (sample >= 0 && sample < getNumSamples());
+        }
+        
+        /*
+        ==============  Mutators  ================
+        */
+
         public void setPath(string src) {
             path = src;
             name = path.Substring(path.LastIndexOf("\\") + 1);
         }
 
-        public void save() {
-            writeFile(path);
-        }
-
-        public bool inRange(int sample) {
-            return (sample >= 0 && sample < getNumSamples());
-        }
+        /*
+        ==============  Copy and Paste utilities  ================
+        */
 
         private void dropSamples(int start, int end) {
             if (!inRange(start) || end <= start) {

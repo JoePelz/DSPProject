@@ -8,6 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Comp3931_Project_JoePelz {
+    /// <summary>
+    /// Messages handled by my thread's message queue
+    /// </summary>
     public enum PlayerMsg {
         WOM_OPEN,
         WOM_DONE,
@@ -19,6 +22,9 @@ namespace Comp3931_Project_JoePelz {
         EXIT
     }
 
+    /// <summary>
+    /// Playback status, for reporting (and used internally)
+    /// </summary>
     public enum PlaybackStatus {
         Recording,
         Playing,
@@ -57,7 +63,9 @@ namespace Comp3931_Project_JoePelz {
             Dispose();
         }
 
-        /* ===============  Entry points =============== */
+        /* 
+        ===============  Public Playback Interface  =============== 
+        */
 
         public bool Playing {
             get { return bPlaying; }
@@ -89,7 +97,9 @@ namespace Comp3931_Project_JoePelz {
             MsgQueue.Add(PlayerMsg.PLAYBACK_PAUSE);
         }
 
-        /* ===============  Queue processing =============== */
+        /* 
+        ===============  Queue processing  =============== 
+        */
 
         private void WOM_proc(IntPtr hdrvr, int uMsg, int dwUser, ref WaveHdr wavhdr, int dwParam2) {
             switch (uMsg) {
@@ -136,7 +146,9 @@ namespace Comp3931_Project_JoePelz {
             }
         }
 
-        /* ===============  Actions =============== */
+        /* 
+        ===============  Event Handlers  =============== 
+        */
 
         private void OnWomOpen() {
             if (h_pbuffer.IsAllocated)
