@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Comp3931_Project_JoePelz {
 
+    /// <summary>
+    /// WaveHeader struct from Win32
+    /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct WaveHdr {
         public IntPtr lpData;       // pointer to locked data buffer
@@ -19,7 +22,9 @@ namespace Comp3931_Project_JoePelz {
         public IntPtr lpNext;       // PWaveHdr, reserved for driver
         public int reserved;        // reserved for driver
     }
-
+    /// <summary>
+    /// WaveFormat struct from win32
+    /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public class WaveFormat {
         public short wFormatTag;        //should be WAVE_FORMAT_PCM (0x01

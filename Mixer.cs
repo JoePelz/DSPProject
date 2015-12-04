@@ -50,9 +50,6 @@ namespace Comp3931_Project_JoePelz {
                 rec = new WaveRecorder(this);
                 rec.RecordingStart();
             } else {
-                System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Mixer));
-                btnRecord.Enabled = false;
-                btnRecord.Image = (System.Drawing.Image)(resources.GetObject("btnRecordDisabled"));
                 rec.RecordingStop();
                 WaveFile result = rec.getSamples();
                 if (result != null) {

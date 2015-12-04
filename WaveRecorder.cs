@@ -40,7 +40,7 @@ namespace Comp3931_Project_JoePelz {
 
         private IntPtr hWaveIn;
         private bool bRecording, bEnding;
-        private static int INP_BUFFER_SIZE = 16384;
+        private static int INP_BUFFER_SIZE = 4096;
 
         private WinmmHook.WaveDelegate WaveInProc;
         private IntPtr parentHandle;
@@ -52,8 +52,8 @@ namespace Comp3931_Project_JoePelz {
             hWaveIn = new IntPtr();
             WaveInProc = new WinmmHook.WaveDelegate(WIM_proc);
             
-            pBuffer1 = new byte[16384];
-            pBuffer2 = new byte[16384];
+            pBuffer1 = new byte[INP_BUFFER_SIZE];
+            pBuffer2 = new byte[INP_BUFFER_SIZE];
             waveform = new WaveFormat(11025, 8, 1);
         }
 
@@ -85,8 +85,8 @@ namespace Comp3931_Project_JoePelz {
         public WaveFile getSamples() {
             if (recorder.IsAlive) {
                 MsgQueue.Add(RecorderMsg.TERMINATING);
+                recorder.Join();
             }
-            recorder.Join();
 
             //create a new wave file with the byte array.
             WaveFile result = null;
@@ -180,20 +180,21 @@ namespace Comp3931_Project_JoePelz {
                 return;
             }
             
-                byte[] result;
-                int copyPos;
-                if (pSaveBuffer == null) {
-                    result = new byte[header.dwBytesRecorded];
-                    copyPos = 0;
-                } else {
-                    result = new byte[pSaveBuffer.Length + header.dwBytesRecorded];
-                    pSaveBuffer.CopyTo(result, 0);
-                    copyPos = pSaveBuffer.Length;
-                }
-                Array.Copy(samples, 0, result, copyPos, header.dwBytesRecorded);
-                pSaveBuffer = result;
+            byte[] result;
+            int copyPos;
+            if (pSaveBuffer == null) {
+                result = new byte[header.dwBytesRecorded];
+                copyPos = 0;
+            } else {
+                result = new byte[pSaveBuffer.Length + header.dwBytesRecorded];
+                pSaveBuffer.CopyTo(result, 0);
+                copyPos = pSaveBuffer.Length;
+            }
+            Array.Copy(samples, 0, result, copyPos, header.dwBytesRecorded);
+            pSaveBuffer = result;
             
             if (bEnding) {
+                WinmmHook.waveInReset(hWaveIn);
                 WinmmHook.waveInClose(hWaveIn);
                 return;
             }
@@ -257,13 +258,13 @@ namespace Comp3931_Project_JoePelz {
 
         private void OnRecordingStop() {
             bEnding = true;
-            WinmmHook.waveInReset(hWaveIn);
+            //WinmmHook.waveInReset(hWaveIn);
         }
 
         private void OnTerminating() {
             if (bRecording) {
                 bEnding = true;
-                WinmmHook.waveInReset(hWaveIn);
+                //WinmmHook.waveInReset(hWaveIn);
                 return;
             }
 
