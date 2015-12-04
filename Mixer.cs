@@ -20,129 +20,12 @@ namespace Comp3931_Project_JoePelz {
             InitializeComponent();
         }
 
-        protected override void OnFormClosed(FormClosedEventArgs e) {
-            base.OnFormClosed(e);
-            //ensure all children are destroyed properly
-            // (children have subthreads)
-            while (children.Count > 0) {
-                children[0].Close();
-            }
-        }
-
-        protected override void WndProc(ref Message m) {
-            if (m.Msg == WinmmHook.WM_USER + 1) {
-                PlaybackStatus status = (PlaybackStatus)(int)m.WParam;
-                playbackUpdate(status);
-            }
-            base.WndProc(ref m);
-        }
-
-        private void quitToolStripMenuItem_Click(object sender, EventArgs e) {
-            this.Close();
-        }
-
-        public void setActiveWindow(WaveForm child) {
-            activeChild = child;
-            updateWindowMenu();
-            updateFidelityMenu();
-            if (activeChild == null) {
-                playbackUpdate(PlaybackStatus.Disabled);
-            } else {
-                playbackUpdate(activeChild.State);
-            }
-        }
-
-        public void childDied(WaveForm child) {
-            children.Remove(child);
-            updateWindowMenu();
-            if (children.Count == 1) {
-                setActiveWindow(children[0]);
-            } else {
-                setActiveWindow(null);
-            }
-        }
-
-        private void updateWindowMenu() {
-            windowToolStripMenuItem.DropDownItems.Clear();
-            childWindowMenuItems = new ToolStripMenuItem[children.Count];
-            for (int i = 0; i < children.Count; i++) {
-                childWindowMenuItems[i] = new ToolStripMenuItem(children[i].Text, null, new System.EventHandler(this.focusChild));
-                childWindowMenuItems[i].Tag = i;
-                if (children[i] == activeChild) {
-                    childWindowMenuItems[i].Checked = true;
-                }
-                windowToolStripMenuItem.DropDownItems.Add(childWindowMenuItems[i]);
-            }
-        }
-
-        private void focusChild(object sender, EventArgs e) {
-            ToolStripMenuItem menuItem = (ToolStripMenuItem)sender;
-            children[(int)menuItem.Tag].Focus();
-        }
-
-        private void updateFidelityMenu() {
-            ToolStripMenuItem[] bitRates    = { menu_Fidel_Bits_8, menu_Fidel_Bits_16, menu_Fidel_Bits_24, menu_Fidel_Bits_32 };
-            ToolStripMenuItem[] sampleRates = { menu_Fidel_Sample_11025, menu_Fidel_Sample_22050, menu_Fidel_Sample_44100, menu_Fidel_Sample_88200 };
-            ToolStripMenuItem[] channels    = { menu_Fidel_channels_mono, menu_Fidel_channels_stereo };
-            foreach (ToolStripMenuItem item in sampleRates) {
-                if (activeChild != null && activeChild.SampleRate == (int)item.Tag) {
-                    item.Checked = true;
-                } else {
-                    item.Checked = false;
-                }
-            }
-            foreach (ToolStripMenuItem item in bitRates) {
-                if (activeChild != null && activeChild.BitDepth == (int)item.Tag) {
-                    item.Checked = true;
-                } else {
-                    item.Checked = false;
-                }
-            }
-            foreach (ToolStripMenuItem item in channels) {
-                if (activeChild != null && activeChild.Channels == (int)item.Tag) {
-                    item.Checked = true;
-                } else {
-                    item.Checked = false;
-                }
-            }
-        }
+        /*
+        ==================  UI Callbacks  ====================
+        */
 
         private void btnNew_Click(object sender, EventArgs e) {
             createChildWindow();
-        }
-
-        private void createChildWindow(string path = null) {
-            WaveFile wave;
-            WaveForm baby;
-            if (path == null) {
-                wave = new WaveFile();
-                baby = new WaveForm(this, wave);
-                baby.updateReport("New sine waves generated.");
-            } else {
-                try {
-                    wave = new WaveFile(path);
-                    baby = new WaveForm(this, wave);
-                    baby.updateReport(wave.getName()+" opened successfully!");
-                } catch (Exception e) {
-                    MessageBox.Show("Opening Failed: " + e.Message);
-                    return;
-                }
-            }
-            
-            children.Add(baby);
-            activeChild = baby;
-            baby.Show();
-            updateWindowMenu();
-        }
-
-        private void createChildWindow(WaveFile wave) {
-            WaveForm baby;
-            baby = new WaveForm(this, wave);
-            
-            children.Add(baby);
-            activeChild = baby;
-            baby.Show();
-            updateWindowMenu();
         }
 
         private void btnSave_Click(object sender, EventArgs e) {
@@ -159,77 +42,6 @@ namespace Comp3931_Project_JoePelz {
         private void btnOpen_Click(object sender, EventArgs e) {
             if (openFileDialog1.ShowDialog() == DialogResult.OK) {
                 createChildWindow(openFileDialog1.FileName);
-            }
-        }
-
-        private void btnStop_Click(object sender, EventArgs e) {
-            foreach (WaveForm wave in children) {
-                wave.waveStop();
-            }
-        }
-
-        public void playbackUpdate(PlaybackStatus update) {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Mixer));
-            switch (update) {
-                case PlaybackStatus.Playing:
-                    btnPlay.Enabled = true;
-                    btnPlay.Image = Comp3931_Project_JoePelz.Properties.Resources.btnPause;
-                    btnStop.Enabled = true;
-                    btnStop.Image = Comp3931_Project_JoePelz.Properties.Resources.btnStop;
-                    btnRecord.Enabled = false;
-                    btnRecord.Image = Comp3931_Project_JoePelz.Properties.Resources.btnRecordDisabled;
-                    btnNew.Enabled = false;
-                    btnNew.Image = Comp3931_Project_JoePelz.Properties.Resources.btnNewDisabled;
-                    btnOpen.Enabled = false;
-                    btnOpen.Image = Comp3931_Project_JoePelz.Properties.Resources.btnOpenDisabled;
-                    btnSave.Enabled = false;
-                    btnSave.Image = Comp3931_Project_JoePelz.Properties.Resources.btnSaveDisabled;
-                    break;
-                case PlaybackStatus.Paused:
-                    btnPlay.Image = Comp3931_Project_JoePelz.Properties.Resources.btnPlay;
-                    break;
-                case PlaybackStatus.Recording:
-                    btnPlay.Enabled = false;
-                    btnPlay.Image = Comp3931_Project_JoePelz.Properties.Resources.btnPlayDisabled;
-                    btnStop.Enabled = false;
-                    btnStop.Image = Comp3931_Project_JoePelz.Properties.Resources.btnStopDisabled;
-                    btnRecord.Enabled = true;
-                    btnRecord.Image = Comp3931_Project_JoePelz.Properties.Resources.btnRecord;
-                    btnNew.Enabled = false;
-                    btnNew.Image = Comp3931_Project_JoePelz.Properties.Resources.btnNewDisabled;
-                    btnOpen.Enabled = false;
-                    btnOpen.Image = Comp3931_Project_JoePelz.Properties.Resources.btnOpenDisabled;
-                    btnSave.Enabled = false;
-                    btnSave.Image = Comp3931_Project_JoePelz.Properties.Resources.btnSaveDisabled;
-                    break;
-                case PlaybackStatus.Stopped:
-                    btnPlay.Enabled = true;
-                    btnPlay.Image = Comp3931_Project_JoePelz.Properties.Resources.btnPlay;
-                    btnStop.Enabled = true;
-                    btnStop.Image = Comp3931_Project_JoePelz.Properties.Resources.btnStop;
-                    btnRecord.Enabled = true;
-                    btnRecord.Image = Comp3931_Project_JoePelz.Properties.Resources.btnRecord;
-                    btnNew.Enabled = true;
-                    btnNew.Image = Comp3931_Project_JoePelz.Properties.Resources.btnNew;
-                    btnOpen.Enabled = true;
-                    btnOpen.Image = Comp3931_Project_JoePelz.Properties.Resources.btnOpen;
-                    btnSave.Enabled = true;
-                    btnSave.Image = Comp3931_Project_JoePelz.Properties.Resources.btnSave;
-                    break;
-                case PlaybackStatus.Disabled:
-                    btnPlay.Enabled = false;
-                    btnPlay.Image = Comp3931_Project_JoePelz.Properties.Resources.btnPlayDisabled;
-                    btnStop.Enabled = true;
-                    btnStop.Image = Comp3931_Project_JoePelz.Properties.Resources.btnStop;
-                    btnRecord.Enabled = true;
-                    btnRecord.Image = Comp3931_Project_JoePelz.Properties.Resources.btnRecord;
-                    btnNew.Enabled = true;
-                    btnNew.Image = Comp3931_Project_JoePelz.Properties.Resources.btnNew;
-                    btnOpen.Enabled = true;
-                    btnOpen.Image = Comp3931_Project_JoePelz.Properties.Resources.btnOpen;
-                    btnSave.Enabled = true;
-                    btnSave.Image = Comp3931_Project_JoePelz.Properties.Resources.btnSave;
-                    break;
             }
         }
 
@@ -251,6 +63,12 @@ namespace Comp3931_Project_JoePelz {
             }
         }
 
+        private void btnStop_Click(object sender, EventArgs e) {
+            foreach (WaveForm wave in children) {
+                wave.waveStop();
+            }
+        }
+
         private void btnPlay_Click(object sender, EventArgs e) {
             if (activeChild == null) {
                 return;
@@ -258,6 +76,14 @@ namespace Comp3931_Project_JoePelz {
 
             activeChild.wavePlayPause();
             btnPlay.Invalidate();
+        }
+
+        /*
+        ==================  Menu Callbacks  ====================
+        */
+
+        private void quitToolStripMenuItem_Click(object sender, EventArgs e) {
+            this.Close();
         }
 
         private void reverseToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -333,5 +159,196 @@ namespace Comp3931_Project_JoePelz {
                 activeChild.applyFX(DSP_FX.pitchshift, args);
             }
         }
-    }
+
+        public void setActiveWindow(WaveForm child) {
+            activeChild = child;
+            updateWindowMenu();
+            updateFidelityMenu();
+            if (activeChild == null) {
+                playbackUpdate(PlaybackStatus.Disabled);
+            } else {
+                playbackUpdate(activeChild.State);
+            }
+        }
+
+        /*
+        ==================  Misc Event Handlers  ====================
+        */
+
+        private void focusChild(object sender, EventArgs e) {
+            ToolStripMenuItem menuItem = (ToolStripMenuItem)sender;
+            children[(int)menuItem.Tag].Focus();
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e) {
+            base.OnFormClosed(e);
+            //ensure all children are destroyed properly
+            // (children have subthreads)
+            while (children.Count > 0) {
+                children[0].Close();
+            }
+        }
+
+        protected override void WndProc(ref Message m) {
+            if (m.Msg == WinmmHook.WM_USER + 1) {
+                PlaybackStatus status = (PlaybackStatus)(int)m.WParam;
+                playbackUpdate(status);
+            }
+            base.WndProc(ref m);
+        }
+
+        public void childDied(WaveForm child) {
+            children.Remove(child);
+            updateWindowMenu();
+            if (children.Count == 1) {
+                setActiveWindow(children[0]);
+            } else {
+                setActiveWindow(null);
+            }
+        }
+
+        /*
+        ==================  UI Update Helpers  ====================
+        */
+
+        public void playbackUpdate(PlaybackStatus update) {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Mixer));
+            switch (update) {
+                case PlaybackStatus.Playing:
+                    btnPlay.Enabled = true;
+                    btnPlay.Image = Comp3931_Project_JoePelz.Properties.Resources.btnPause;
+                    btnStop.Enabled = true;
+                    btnStop.Image = Comp3931_Project_JoePelz.Properties.Resources.btnStop;
+                    btnRecord.Enabled = false;
+                    btnRecord.Image = Comp3931_Project_JoePelz.Properties.Resources.btnRecordDisabled;
+                    btnNew.Enabled = false;
+                    btnNew.Image = Comp3931_Project_JoePelz.Properties.Resources.btnNewDisabled;
+                    btnOpen.Enabled = false;
+                    btnOpen.Image = Comp3931_Project_JoePelz.Properties.Resources.btnOpenDisabled;
+                    btnSave.Enabled = false;
+                    btnSave.Image = Comp3931_Project_JoePelz.Properties.Resources.btnSaveDisabled;
+                    break;
+                case PlaybackStatus.Paused:
+                    btnPlay.Image = Comp3931_Project_JoePelz.Properties.Resources.btnPlay;
+                    break;
+                case PlaybackStatus.Recording:
+                    btnPlay.Enabled = false;
+                    btnPlay.Image = Comp3931_Project_JoePelz.Properties.Resources.btnPlayDisabled;
+                    btnStop.Enabled = false;
+                    btnStop.Image = Comp3931_Project_JoePelz.Properties.Resources.btnStopDisabled;
+                    btnRecord.Enabled = true;
+                    btnRecord.Image = Comp3931_Project_JoePelz.Properties.Resources.btnRecord;
+                    btnNew.Enabled = false;
+                    btnNew.Image = Comp3931_Project_JoePelz.Properties.Resources.btnNewDisabled;
+                    btnOpen.Enabled = false;
+                    btnOpen.Image = Comp3931_Project_JoePelz.Properties.Resources.btnOpenDisabled;
+                    btnSave.Enabled = false;
+                    btnSave.Image = Comp3931_Project_JoePelz.Properties.Resources.btnSaveDisabled;
+                    break;
+                case PlaybackStatus.Stopped:
+                    btnPlay.Enabled = true;
+                    btnPlay.Image = Comp3931_Project_JoePelz.Properties.Resources.btnPlay;
+                    btnStop.Enabled = true;
+                    btnStop.Image = Comp3931_Project_JoePelz.Properties.Resources.btnStop;
+                    btnRecord.Enabled = true;
+                    btnRecord.Image = Comp3931_Project_JoePelz.Properties.Resources.btnRecord;
+                    btnNew.Enabled = true;
+                    btnNew.Image = Comp3931_Project_JoePelz.Properties.Resources.btnNew;
+                    btnOpen.Enabled = true;
+                    btnOpen.Image = Comp3931_Project_JoePelz.Properties.Resources.btnOpen;
+                    btnSave.Enabled = true;
+                    btnSave.Image = Comp3931_Project_JoePelz.Properties.Resources.btnSave;
+                    break;
+                case PlaybackStatus.Disabled:
+                    btnPlay.Enabled = false;
+                    btnPlay.Image = Comp3931_Project_JoePelz.Properties.Resources.btnPlayDisabled;
+                    btnStop.Enabled = true;
+                    btnStop.Image = Comp3931_Project_JoePelz.Properties.Resources.btnStop;
+                    btnRecord.Enabled = true;
+                    btnRecord.Image = Comp3931_Project_JoePelz.Properties.Resources.btnRecord;
+                    btnNew.Enabled = true;
+                    btnNew.Image = Comp3931_Project_JoePelz.Properties.Resources.btnNew;
+                    btnOpen.Enabled = true;
+                    btnOpen.Image = Comp3931_Project_JoePelz.Properties.Resources.btnOpen;
+                    btnSave.Enabled = true;
+                    btnSave.Image = Comp3931_Project_JoePelz.Properties.Resources.btnSave;
+                    break;
+            }
+        }
+
+        private void updateWindowMenu() {
+            windowToolStripMenuItem.DropDownItems.Clear();
+            childWindowMenuItems = new ToolStripMenuItem[children.Count];
+            for (int i = 0; i < children.Count; i++) {
+                childWindowMenuItems[i] = new ToolStripMenuItem(children[i].Text, null, new System.EventHandler(this.focusChild));
+                childWindowMenuItems[i].Tag = i;
+                if (children[i] == activeChild) {
+                    childWindowMenuItems[i].Checked = true;
+                }
+                windowToolStripMenuItem.DropDownItems.Add(childWindowMenuItems[i]);
+            }
+        }
+
+        private void updateFidelityMenu() {
+            ToolStripMenuItem[] bitRates    = { menu_Fidel_Bits_8, menu_Fidel_Bits_16, menu_Fidel_Bits_24, menu_Fidel_Bits_32 };
+            ToolStripMenuItem[] sampleRates = { menu_Fidel_Sample_11025, menu_Fidel_Sample_22050, menu_Fidel_Sample_44100, menu_Fidel_Sample_88200 };
+            ToolStripMenuItem[] channels    = { menu_Fidel_channels_mono, menu_Fidel_channels_stereo };
+            foreach (ToolStripMenuItem item in sampleRates) {
+                if (activeChild != null && activeChild.SampleRate == (int)item.Tag) {
+                    item.Checked = true;
+                } else {
+                    item.Checked = false;
+                }
+            }
+            foreach (ToolStripMenuItem item in bitRates) {
+                if (activeChild != null && activeChild.BitDepth == (int)item.Tag) {
+                    item.Checked = true;
+                } else {
+                    item.Checked = false;
+                }
+            }
+            foreach (ToolStripMenuItem item in channels) {
+                if (activeChild != null && activeChild.Channels == (int)item.Tag) {
+                    item.Checked = true;
+                } else {
+                    item.Checked = false;
+                }
+            }
+        }
+
+        private void createChildWindow(string path = null) {
+            WaveFile wave;
+            WaveForm baby;
+            if (path == null) {
+                wave = new WaveFile();
+                baby = new WaveForm(this, wave);
+                baby.updateReport("New sine waves generated.");
+            } else {
+                try {
+                    wave = new WaveFile(path);
+                    baby = new WaveForm(this, wave);
+                    baby.updateReport(wave.getName()+" opened successfully!");
+                } catch (Exception e) {
+                    MessageBox.Show("Opening Failed: " + e.Message);
+                    return;
+                }
+            }
+            
+            children.Add(baby);
+            activeChild = baby;
+            baby.Show();
+            updateWindowMenu();
+        }
+
+        private void createChildWindow(WaveFile wave) {
+            WaveForm baby;
+            baby = new WaveForm(this, wave);
+            
+            children.Add(baby);
+            activeChild = baby;
+            baby.Show();
+            updateWindowMenu();
+        }
+
+        }
 }
