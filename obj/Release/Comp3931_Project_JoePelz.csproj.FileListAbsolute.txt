@@ -1,1 +1,12 @@
 C:\Users\Joe\documents\visual studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\bin\Release\Comp3931_Project_JoePelz.exe.config
+C:\Users\Joe\Documents\Visual Studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\bin\Release\Comp3931_Project_JoePelz.exe
+C:\Users\Joe\Documents\Visual Studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\bin\Release\Comp3931_Project_JoePelz.pdb
+C:\Users\Joe\Documents\Visual Studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\obj\Release\Comp3931_Project_JoePelz.FourierPanel.resources
+C:\Users\Joe\Documents\Visual Studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\obj\Release\Comp3931_Project_JoePelz.WaveForm.resources
+C:\Users\Joe\Documents\Visual Studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\obj\Release\Comp3931_Project_JoePelz.Mixer.resources
+C:\Users\Joe\Documents\Visual Studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\obj\Release\Comp3931_Project_JoePelz.Properties.Resources.resources
+C:\Users\Joe\Documents\Visual Studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\obj\Release\Comp3931_Project_JoePelz.WavePanel.resources
+C:\Users\Joe\Documents\Visual Studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\obj\Release\Comp3931_Project_JoePelz.csproj.GenerateResource.Cache
+C:\Users\Joe\Documents\Visual Studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\obj\Release\Comp3931_Project_JoePelz.exe
+C:\Users\Joe\Documents\Visual Studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\obj\Release\Comp3931_Project_JoePelz.pdb
+C:\Users\Joe\Documents\Visual Studio 2015\Projects\Comp3931_Project_JoePelz\Comp3931_Project_JoePelz\obj\Release\Comp3931_Project_JoePelz.csprojResolveAssemblyReference.cache

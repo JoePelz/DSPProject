@@ -323,7 +323,7 @@ namespace Comp3931_Project_JoePelz {
         }
 
         /*
-        ================  UI Update Helpers  ================
+        ================  Miscellaneous  ================
         */
 
         public void filterSelectedFrequencies(DSP_FILTER method = DSP_FILTER.convolution) {
@@ -340,7 +340,10 @@ namespace Comp3931_Project_JoePelz {
             }
             
             double criticalPoint = 0;
-            criticalPoint = fSelStart * SampleRate / fourierN;
+            if (method == DSP_FILTER.IIRLowpass)
+                criticalPoint = fSelStart * SampleRate / fourierN;
+            else
+                criticalPoint = fSelEnd * SampleRate / fourierN;
 
             for (int channel = 0; channel < wave.channels; channel++) {
                 switch (method) {
@@ -356,7 +359,7 @@ namespace Comp3931_Project_JoePelz {
                         break;
                     case DSP_FILTER.IIRHighpass: //high pass
                         // HighPass IIRFilter  ( samples, 0x freq, 1x freq, 1, SampleRate );
-                        wave.samples[channel] = DSP.IIRFilter(wave.samples[channel], Math.Max(0, criticalPoint - 5000), Math.Min(criticalPoint + 5000, SampleRate/2), 1, SampleRate);
+                        wave.samples[channel] = DSP.IIRFilter(wave.samples[channel], Math.Max(0, criticalPoint - 7000), Math.Min(criticalPoint + 3000, SampleRate/2), 1, SampleRate);
                         break;
                     default:
                         MessageBox.Show("something went wrong.");
