@@ -1,4 +1,4 @@
-# Audio File
+# Audio Mixer and DSP
 _Digital Signal Processing research project_
 
 This was a term-long school assignment, running during fall of 2015.  It was an opportunity to explore a wide range of concepts, many of which were completely new to me.  By the end of this project I had my first experiences in:
